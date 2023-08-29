@@ -1,3 +1,6 @@
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Recipe
 {
@@ -13,6 +16,10 @@ namespace Recipe
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddDbContext<StoreContext>(options
+                => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+                b => b.MigrationsAssembly(typeof(StoreContext).Assembly.FullName)));
 
             var app = builder.Build();
 
