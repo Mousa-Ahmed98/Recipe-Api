@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,8 +10,9 @@ namespace Core.Entities
     public class Step
     {
         public int Id { get; set; }
-        public string Stp { get; set; }
-
-        public byte order;
+        [Required]
+        public required string Stp { get; set; }
+        [Required]
+        public byte Order { get; set; }
     }
 }

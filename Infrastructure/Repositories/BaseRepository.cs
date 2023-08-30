@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-    internal class BaseRepository<T> : IBaseRepository<T> where T : class
+    public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         private readonly StoreContext _context;
 
@@ -16,9 +16,11 @@ namespace Infrastructure.Repositories
         {
             _context = context;
         }
-        public Task<T> Add(T entity)
+        public T Add(T entity)
         {
-            throw new NotImplementedException();
+            _context.Set<T>().Add(entity);
+            _context.SaveChanges();
+            return entity;
         }
 
         public Task<T> Delete(T entity)
@@ -26,9 +28,9 @@ namespace Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<T> GetById(int id)
+        public async Task<T> GetById(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Set<T>().FindAsync(id);
         }
 
         public Task<T> Update(T entity)
