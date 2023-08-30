@@ -1,6 +1,8 @@
+using Core.Interfaces;
 using Infrastructure.Data;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-
+using Recipe.Helpers;
 
 namespace Recipe
 {
@@ -20,6 +22,13 @@ namespace Recipe
             builder.Services.AddDbContext<StoreContext>(options
                 => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(typeof(StoreContext).Assembly.FullName)));
+
+            //Register the IBaseRepository and BaseRepository
+            builder.Services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+
+            // Add AutoMapper configuration in Startup.cs or a configuration file
+            builder.Services.AddAutoMapper(typeof(RecipeMappingProfile), typeof(StepMappingProfile));
+
 
             var app = builder.Build();
 

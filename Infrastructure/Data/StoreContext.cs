@@ -17,6 +17,10 @@ namespace Infrastructure.Data
 
         public DbSet<Recipe> recipes { get; set; }
         public DbSet<Category> categories { get; set; }
+        public DbSet<Step> Steps { get; set; }
+        public DbSet<Ingredient> Ingredients { get; set; }
+
+
 
     }
 }
