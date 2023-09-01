@@ -11,6 +11,6 @@ namespace Core.Entities
     {
         public int Id { get; set; }
         [Required]
-        public required string Ingrdnt { get; set; }
+        public required string Description { get; set; }
     }
 }

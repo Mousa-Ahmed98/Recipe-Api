@@ -11,7 +11,7 @@ namespace Core.Entities
     {
         public int Id { get; set; }
         [Required]
-        public required string Stp { get; set; }
+        public required string Description { get; set; }
         [Required]
         public byte Order { get; set; }
     }
