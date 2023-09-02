@@ -42,7 +42,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("categories");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Core.Entities.Ingredient", b =>
@@ -89,7 +89,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("recipes");
+                    b.ToTable("Recipes");
                 });
 
             modelBuilder.Entity("Core.Entities.Step", b =>
@@ -127,7 +127,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entities.Recipe", b =>
                 {
                     b.HasOne("Core.Entities.Category", "Category")
-                        .WithMany("recipes")
+                        .WithMany("Recipes")
                         .HasForeignKey("CategoryId");
 
                     b.Navigation("Category");
@@ -142,7 +142,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.Category", b =>
                 {
-                    b.Navigation("recipes");
+                    b.Navigation("Recipes");
                 });
 
             modelBuilder.Entity("Core.Entities.Recipe", b =>

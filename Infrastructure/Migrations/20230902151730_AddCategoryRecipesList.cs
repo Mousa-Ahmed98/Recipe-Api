@@ -11,7 +11,7 @@ namespace Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "categories",
+                name: "Categories",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -25,7 +25,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "recipes",
+                name: "Recipes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -36,11 +36,11 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_recipes", x => x.Id);
+                    table.PrimaryKey("PK_Recipes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_recipes_categories_CategoryId",
+                        name: "FK_Recipes_Categories_CategoryId",
                         column: x => x.CategoryId,
-                        principalTable: "categories",
+                        principalTable: "Categories",
                         principalColumn: "Id");
                 });
 
@@ -57,9 +57,9 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Ingredients", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Ingredients_recipes_RecipeId",
+                        name: "FK_Ingredients_Recipes_RecipeId",
                         column: x => x.RecipeId,
-                        principalTable: "recipes",
+                        principalTable: "Recipes",
                         principalColumn: "Id");
                 });
 
@@ -77,9 +77,9 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Steps", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Steps_recipes_RecipeId",
+                        name: "FK_Steps_Recipes_RecipeId",
                         column: x => x.RecipeId,
-                        principalTable: "recipes",
+                        principalTable: "Recipes",
                         principalColumn: "Id");
                 });
 
@@ -89,8 +89,8 @@ namespace Infrastructure.Migrations
                 column: "RecipeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_recipes_CategoryId",
-                table: "recipes",
+                name: "IX_Recipes_CategoryId",
+                table: "Recipes",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
@@ -109,10 +109,10 @@ namespace Infrastructure.Migrations
                 name: "Steps");
 
             migrationBuilder.DropTable(
-                name: "recipes");
+                name: "Recipes");
 
             migrationBuilder.DropTable(
-                name: "categories");
+                name: "Categories");
         }
     }
 }

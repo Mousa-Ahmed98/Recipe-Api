@@ -1,5 +1,6 @@
 using Core.Interfaces;
 using Infrastructure.Data;
+using Infrastructure.Data.DBInitializer;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Recipe.Helpers;
@@ -8,7 +9,7 @@ namespace Recipe
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -46,7 +47,10 @@ namespace Recipe
 
             app.MapControllers();
 
+            await app.InitDataAsync();
+
             app.Run();
+
         }
     }
 }
