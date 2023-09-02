@@ -14,5 +14,7 @@ namespace Core.Entities
         public required string Name { get; set; }
         
         public int RecipeId { get; set; }
+
+        public List<Recipe> recipes { get; set; }
     }
 }

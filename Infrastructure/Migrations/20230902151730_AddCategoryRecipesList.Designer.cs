@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20230830172658_UpdateIngredientsEntity")]
-    partial class UpdateIngredientsEntity
+    [Migration("20230902151730_AddCategoryRecipesList")]
+    partial class AddCategoryRecipesList
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,9 +42,6 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RecipeId")
-                        .IsUnique();
-
                     b.ToTable("categories");
                 });
 
@@ -56,7 +53,7 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Ingrdnt")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -78,6 +75,9 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
@@ -86,6 +86,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("recipes");
                 });
@@ -98,30 +100,21 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<byte>("Order")
                         .HasColumnType("tinyint");
 
                     b.Property<int?>("RecipeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Stp")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("RecipeId");
 
                     b.ToTable("Steps");
-                });
-
-            modelBuilder.Entity("Core.Entities.Category", b =>
-                {
-                    b.HasOne("Core.Entities.Recipe", null)
-                        .WithOne("Category")
-                        .HasForeignKey("Core.Entities.Category", "RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Core.Entities.Ingredient", b =>
@@ -131,6 +124,15 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("RecipeId");
                 });
 
+            modelBuilder.Entity("Core.Entities.Recipe", b =>
+                {
+                    b.HasOne("Core.Entities.Category", "Category")
+                        .WithMany("recipes")
+                        .HasForeignKey("CategoryId");
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("Core.Entities.Step", b =>
                 {
                     b.HasOne("Core.Entities.Recipe", null)
@@ -138,10 +140,13 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("RecipeId");
                 });
 
+            modelBuilder.Entity("Core.Entities.Category", b =>
+                {
+                    b.Navigation("recipes");
+                });
+
             modelBuilder.Entity("Core.Entities.Recipe", b =>
                 {
-                    b.Navigation("Category");
-
                     b.Navigation("Ingredients");
 
                     b.Navigation("Steps");
