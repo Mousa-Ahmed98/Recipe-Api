@@ -2,6 +2,7 @@
 using Core.Entities;
 using Recipe.DTOs;
 using Recipe.DTOs.Request;
+using Recipe.DTOs.Response;
 
 namespace Recipe.Helpers
 {
@@ -14,6 +15,13 @@ namespace Recipe.Helpers
                 opt.MapFrom(src => src.Ingredients.Select(i => new Ingredient { Description = i.ToString()})))
                 .ForMember(dest => dest.Steps, opt => 
                 opt.MapFrom(src => src.Steps.Select(s => new StepDto { Step = s.Step, Order = s.Order })));
+            
+            CreateMap<Core.Entities.Recipe, RecipeResponse>()
+                .ForMember(dest => dest.ImageURL, opt =>
+                    opt.MapFrom(
+                        src => src.Image
+                        ));
+                
 
         }
     }
