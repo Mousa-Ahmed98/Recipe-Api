@@ -39,10 +39,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RecipeId")
-                        .IsUnique();
-
-                    b.ToTable("categories", (string)null);
+                    b.ToTable("categories");
                 });
 
             modelBuilder.Entity("Core.Entities.Ingredient", b =>
@@ -53,7 +50,7 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Ingrdnt")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -64,7 +61,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("Ingredients", (string)null);
+                    b.ToTable("Ingredients");
                 });
 
             modelBuilder.Entity("Core.Entities.Recipe", b =>
@@ -74,6 +71,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
@@ -84,7 +84,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("recipes", (string)null);
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("recipes");
                 });
 
             modelBuilder.Entity("Core.Entities.Step", b =>
@@ -95,30 +97,21 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<byte>("Order")
                         .HasColumnType("tinyint");
 
                     b.Property<int?>("RecipeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Stp")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("Steps", (string)null);
-                });
-
-            modelBuilder.Entity("Core.Entities.Category", b =>
-                {
-                    b.HasOne("Core.Entities.Recipe", null)
-                        .WithOne("Category")
-                        .HasForeignKey("Core.Entities.Category", "RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.ToTable("Steps");
                 });
 
             modelBuilder.Entity("Core.Entities.Ingredient", b =>
@@ -128,6 +121,15 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("RecipeId");
                 });
 
+            modelBuilder.Entity("Core.Entities.Recipe", b =>
+                {
+                    b.HasOne("Core.Entities.Category", "Category")
+                        .WithMany("recipes")
+                        .HasForeignKey("CategoryId");
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("Core.Entities.Step", b =>
                 {
                     b.HasOne("Core.Entities.Recipe", null)
@@ -135,10 +137,13 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("RecipeId");
                 });
 
+            modelBuilder.Entity("Core.Entities.Category", b =>
+                {
+                    b.Navigation("recipes");
+                });
+
             modelBuilder.Entity("Core.Entities.Recipe", b =>
                 {
-                    b.Navigation("Category");
-
                     b.Navigation("Ingredients");
 
                     b.Navigation("Steps");

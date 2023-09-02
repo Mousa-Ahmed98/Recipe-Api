@@ -8,7 +8,7 @@ namespace Recipe.Helpers
         public StepMappingProfile()
         {
             CreateMap<StepDto, Core.Entities.Step>()
-                .ForMember(dest => dest.Stp, opt => opt.MapFrom(src => src.Step))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Step))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Order));
         }
     }

@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using CoreEntities = Core.Entities;
-using Recipe.DTOs;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Core.Entities;
 using Microsoft.IdentityModel.Tokens;
 using AutoMapper;
 using System.Diagnostics;
+using Recipe.DTOs.Request;
 
 namespace Recipe.Controllers
 {
@@ -25,7 +25,7 @@ namespace Recipe.Controllers
         }
 
         [HttpPost("Add")]
-        public IActionResult AddRecipe([FromBody] RecipeDto recipeDto)
+        public IActionResult AddRecipe([FromBody] CreateRecipeRequest recipeDto)
         {
 
             try
