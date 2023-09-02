@@ -30,6 +30,17 @@ namespace Recipe
             // Add AutoMapper configuration in Startup.cs or a configuration file
             builder.Services.AddAutoMapper(typeof(RecipeMappingProfile), typeof(StepMappingProfile));
 
+            builder.Services.AddCors(opts =>
+            {
+                opts.AddDefaultPolicy(builder =>
+                {
+                    builder
+                        .WithOrigins("http://localhost:4200")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
 
             var app = builder.Build();
 
@@ -41,11 +52,9 @@ namespace Recipe
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
+            app.UseCors();
 
             await app.InitDataAsync();
 
