@@ -29,17 +29,19 @@ namespace Recipe
 
             // Add AutoMapper configuration in Startup.cs or a configuration file
             builder.Services.AddAutoMapper(typeof(RecipeMappingProfile), typeof(StepMappingProfile));
-
-            builder.Services.AddCors(opts =>
+              
+            builder.Services.AddCors(options =>
             {
-                opts.AddDefaultPolicy(builder =>
-                {
-                    builder
-                        .WithOrigins("http://localhost:4200")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
-                });
+                options.AddPolicy("*",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:4200") // Add your Angular app's origin(s)
+                       .AllowAnyHeader()
+                       .AllowAnyMethod()
+                       .AllowCredentials()
+                       .WithExposedHeaders("Content-Disposition"); // If needed for file downloads
+                    });
+
             });
 
             var app = builder.Build();
@@ -50,7 +52,7 @@ namespace Recipe
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseCors("*");
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();

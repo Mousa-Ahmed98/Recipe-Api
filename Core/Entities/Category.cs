@@ -12,9 +12,7 @@ namespace Core.Entities
         public int Id { get; set; }
         [Required]
         public required string Name { get; set; }
-        
-        public int RecipeId { get; set; }
 
-        public List<Recipe> recipes { get; set; }
+        public ICollection<Recipe> Recipes { get; set; }
     }
 }

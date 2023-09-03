@@ -48,6 +48,7 @@ namespace Recipe.Controllers
 
             try
             {
+                recipeDto.appendOrdersToSteps();
                 string validationMessage = recipeDto.Validata();
                 if (validationMessage=="")
                 {
