@@ -15,8 +15,16 @@ namespace Infrastructure.Data
 
         }
 
-        public DbSet<Recipe> recipes { get; set; }
-        public DbSet<Category> categories { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Recipe>()
+                .HasOne(r => r.Category)
+                .WithMany(c => c.Recipes)
+                .HasForeignKey(r => r.CategoryId);
+        }
+
+        public DbSet<Recipe> Recipes { get; set; }
+        public DbSet<Category> Categories { get; set; }
         public DbSet<Step> Steps { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
 
