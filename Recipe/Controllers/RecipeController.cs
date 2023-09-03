@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using AutoMapper;
 using System.Diagnostics;
 using Recipe.DTOs.Request;
+using Recipe.DTOs.Response;
 
 namespace Recipe.Controllers
 {
@@ -22,6 +23,23 @@ namespace Recipe.Controllers
         {
             this.recipeRepository = recipeRepository;
             _mapper = mapper;
+        }
+
+        [HttpGet]
+        public async Task<IEnumerable<RecipeResponse>> GetAll()
+        {
+            var res = await recipeRepository.GetAll();
+            
+            return _mapper.Map<IEnumerable<RecipeResponse>> (res);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<RecipeResponse>> GetById(int id)
+        {
+            var res = await recipeRepository.GetById(id);
+            if (res == null) return NotFound();
+            
+            return _mapper.Map<RecipeResponse>(res);
         }
 
         [HttpPost("Add")]

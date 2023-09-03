@@ -122,9 +122,11 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Core.Entities.Category", "Category")
                         .WithMany("Recipes")
+                        .HasForeignKey("CategoryId");
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
 
                     b.Navigation("Category");
                 });
