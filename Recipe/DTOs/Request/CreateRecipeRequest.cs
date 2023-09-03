@@ -17,5 +17,14 @@ namespace Recipe.DTOs.Request
             else if (Steps.IsNullOrEmpty()) return "There must be at least one step.";
             return "";
         }
+
+        public void appendOrdersToSteps()
+        {
+            int i = 0;
+            foreach (var step in Steps)
+            {
+                step.Order = i + 1; i++;
+            }
+        }
     }
 }
