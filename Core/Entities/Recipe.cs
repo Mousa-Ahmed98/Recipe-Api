@@ -13,7 +13,9 @@ namespace Core.Entities
         [Required]
         public required string Name { get; set; }
         public string? Image { get; set; }
-        public Category? Category { get; set; }
+
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
 
         public required ICollection<Ingredient> Ingredients { get; set; }
         public required ICollection<Step> Steps { get; set; }
