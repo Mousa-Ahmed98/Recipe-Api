@@ -28,6 +28,11 @@ namespace Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
+        public IEnumerable<T> GetAll()
+        {
+            return _context.Set<T>().ToList();
+        }
+
         public async Task<T> GetById(int id)
         {
             return await _context.Set<T>().FindAsync(id);
