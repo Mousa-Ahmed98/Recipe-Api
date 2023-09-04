@@ -1,5 +1,6 @@
 using Core.Interfaces;
 using Infrastructure.Data;
+using Infrastructure.Data.DBInitializer;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Recipe.Helpers;
@@ -8,7 +9,7 @@ namespace Recipe
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,7 @@ namespace Recipe
 
             // Add AutoMapper configuration in Startup.cs or a configuration file
             builder.Services.AddAutoMapper(typeof(RecipeMappingProfile), typeof(StepMappingProfile));
-
+              
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("*",
@@ -40,6 +41,7 @@ namespace Recipe
                        .AllowCredentials()
                        .WithExposedHeaders("Content-Disposition"); // If needed for file downloads
                     });
+
             });
 
             var app = builder.Build();
@@ -52,13 +54,14 @@ namespace Recipe
             }
             app.UseCors("*");
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
+            app.UseCors();
+
+            await app.InitDataAsync();
 
             app.Run();
+
         }
     }
 }
