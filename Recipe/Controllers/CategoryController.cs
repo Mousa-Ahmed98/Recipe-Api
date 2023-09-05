@@ -21,9 +21,10 @@ namespace Recipe.Controllers
         }
 
         [HttpGet("GetAllCategories")]
-        public IActionResult GetAllCats()
+        public async Task<IActionResult> GetAllCats()
         {
-            return Ok(categoryRepository.GetAll());
+            IEnumerable<Category> categories = await categoryRepository.GetAll();
+            return Ok(categories);
         }
     }
 }

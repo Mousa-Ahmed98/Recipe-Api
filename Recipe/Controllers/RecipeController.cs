@@ -36,7 +36,10 @@ namespace Recipe.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<RecipeResponse>> GetById(int id)
         {
-            var res = await recipeRepository.GetById(id);
+            var res = recipeRepository.Get(
+                c => c.Id == id,
+                includeProperties: "Ingredients, Steps")
+                .FirstOrDefault();
             if (res == null) return NotFound();
             
             return _mapper.Map<RecipeResponse>(res);

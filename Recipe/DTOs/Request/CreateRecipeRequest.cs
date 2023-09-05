@@ -5,7 +5,7 @@ namespace Recipe.DTOs.Request
     public record CreateRecipeRequest
     {
         public required string Name { get; set; }
-        public string? Image { get; set; }
+        public string? ImageUrl { get; set; }
         public int CategoryId { get; set; }
         public required ICollection<IngredientDto> Ingredients { get; set; }
         public required ICollection<StepDto> Steps { get; set; }
