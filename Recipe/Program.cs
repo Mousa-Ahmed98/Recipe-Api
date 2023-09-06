@@ -2,6 +2,8 @@ using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Data.DBInitializer;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.implementation;
+using Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Recipe.Helpers;
 
@@ -25,7 +27,8 @@ namespace Recipe
                 b => b.MigrationsAssembly(typeof(StoreContext).Assembly.FullName)));
 
             //Register the IBaseRepository and BaseRepository
-            builder.Services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+            builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
             // Add AutoMapper configuration in Startup.cs or a configuration file
             builder.Services.AddAutoMapper(typeof(RecipeMappingProfile), typeof(StepMappingProfile));
@@ -52,11 +55,11 @@ namespace Recipe
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            app.UseCors("*");
+
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
-            app.UseCors();
+            app.UseCors("*");
 
             await app.InitDataAsync();
 

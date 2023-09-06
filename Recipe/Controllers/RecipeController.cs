@@ -1,14 +1,9 @@
-﻿using Core.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using CoreEntities = Core.Entities;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Core.Entities;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
-using System.Diagnostics;
-using Recipe.DTOs.Request;
-using Recipe.DTOs.Response;
+using CoreEntities = Core.Entities;
+using Infrastructure.Repositories.Interfaces;
+using RecipeAPI.DTOs.Response;
+using RecipeAPI.DTOs.Request;
 
 namespace Recipe.Controllers
 {
@@ -16,10 +11,10 @@ namespace Recipe.Controllers
     [ApiController]
     public class RecipeController : ControllerBase
     {
-        private readonly IBaseRepository<CoreEntities.Recipe> recipeRepository;
+        private readonly IRecipeRepository recipeRepository;
         private readonly IMapper _mapper;
 
-        public RecipeController(IBaseRepository<CoreEntities.Recipe> recipeRepository, IMapper mapper)
+        public RecipeController(IRecipeRepository recipeRepository, IMapper mapper)
         {
             this.recipeRepository = recipeRepository;
             _mapper = mapper;
@@ -28,7 +23,7 @@ namespace Recipe.Controllers
         [HttpGet]
         public async Task<IEnumerable<RecipeResponse>> GetAll()
         {
-            var res = await recipeRepository.GetAll();
+            var res = await recipeRepository.GetAllRecipes();
             
             return _mapper.Map<IEnumerable<RecipeResponse>> (res);
         }
@@ -36,17 +31,15 @@ namespace Recipe.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<RecipeResponse>> GetById(int id)
         {
-            var res = recipeRepository.Get(
-                c => c.Id == id,
-                includeProperties: "Ingredients, Steps")
-                .FirstOrDefault();
+            var res = await recipeRepository.GetOneById(id);
+            
             if (res == null) return NotFound();
             
             return _mapper.Map<RecipeResponse>(res);
         }
 
         [HttpPost("Add")]
-        public IActionResult AddRecipe([FromBody] CreateRecipeRequest recipeDto)
+        public async Task<IActionResult> AddRecipe([FromBody] CreateRecipeRequest recipeDto)
         {
 
             try
@@ -57,6 +50,8 @@ namespace Recipe.Controllers
                 {
                     var recipe = _mapper.Map<CoreEntities.Recipe>(recipeDto);
                     recipeRepository.Add(recipe);
+                    await recipeRepository.SaveChangesAsync();
+
                     return Ok(recipe);
                 }
                 else
@@ -69,7 +64,5 @@ namespace Recipe.Controllers
                 return BadRequest(e.Message);
             }
         }
-
-
     }
 }

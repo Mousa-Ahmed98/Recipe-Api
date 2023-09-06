@@ -1,0 +1,22 @@
+﻿using System.Linq.Expressions;
+
+namespace Infrastructure.Repositories.Interfaces
+{
+    public interface IBaseRepository<TEntity> where TEntity : class
+    {
+        Task<IEnumerable<TEntity>> GetAsync(
+            Expression<Func<TEntity, bool>> filter = null!, 
+            string includeProperties = "", 
+            bool tracked = false
+            );
+        void Add(TEntity entity);
+        void AddRange(IEnumerable<TEntity> entities);
+        void DeleteById(int id);
+        void Delete(TEntity entityToDelete);
+        void DeleteRange(IEnumerable<TEntity> entities);
+        void Update(TEntity entityToUpdate);
+        void UpdateRange(IEnumerable<TEntity> entities);
+
+        Task<int> SaveChangesAsync();
+    }
+}
