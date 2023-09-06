@@ -10,7 +10,7 @@ namespace Recipe.Helpers
     {
         public RecipeMappingProfile()
         {
-            CreateMap<CreateRecipeRequest, Core.Entities.Recipe>()
+            CreateMap<RecipeRequest, Core.Entities.Recipe>()
                 .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.ImageUrl))
                 .ForMember(dest => dest.Ingredients, opt => 
                 opt.MapFrom(src => src.Ingredients.Select(i => new Ingredient { Description = i.Description})))
@@ -18,7 +18,7 @@ namespace Recipe.Helpers
                 opt.MapFrom(src => src.Steps.Select(s => new StepDto { Description = s.Description, Order = s.Order })));
             
             CreateMap<Core.Entities.Recipe, RecipeResponse>()
-                .ForMember(dest => dest.ImageURL, opt =>
+                .ForMember(dest => dest.ImageUrl, opt =>
                     opt.MapFrom(
                         src => src.Image
                         ));

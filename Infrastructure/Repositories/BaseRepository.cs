@@ -32,19 +32,27 @@ namespace Infrastructure.Repositories
             return entity;
         }
 
-        public Task<T> Delete(T entity)
+        public T Delete(T entity)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _context.Remove(entity);
+                _context.SaveChanges();
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                Console.WriteLine($"Exception during delete: {ex.Message}");
+                throw; // Optionally, rethrow the exception to propagate it
+            }
         }
 
-        public async Task<T> GetById(int id)
+        public T Update(T entity)
         {
-            return await _context.Set<T>().FindAsync(id);
-        }
-
-        public Task<T> Update(T entity)
-        {
-            throw new NotImplementedException();
+            _context.Update(entity);
+            _context.SaveChanges();
+            return entity;
         }
 
 
