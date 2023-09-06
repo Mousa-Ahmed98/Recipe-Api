@@ -1,14 +1,15 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Core.Entities;
+using Microsoft.IdentityModel.Tokens;
 
-namespace Recipe.DTOs.Request
+namespace RecipeAPI.DTOs.Request
 {
     public record CreateRecipeRequest
     {
-        public required string Name { get; set; }
-        public string? ImageUrl { get; set; }
+        public string Name { get; set; }
+        public string? Image { get; set; }
         public int CategoryId { get; set; }
-        public required ICollection<IngredientDto> Ingredients { get; set; }
-        public required ICollection<StepDto> Steps { get; set; }
+        public required ICollection<Ingredient> Ingredients { get; set; }
+        public required ICollection<Step> Steps { get; set; }
 
         public string Validata()
         {
@@ -24,7 +25,7 @@ namespace Recipe.DTOs.Request
             int i = 0;
             foreach (var step in Steps)
             {
-                step.Order = i + 1; i++;
+                step.Order = (byte)(i + 1); i++;
             }
         }
     }

@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Recipe.DTOs
+namespace RecipeAPI.DTOs.Response
 {
-    public class IngredientDto
+    public record IngredientResponse
     {
+        public int Id { get; set; }
         public required string Description { get; set; }
     }
 }
