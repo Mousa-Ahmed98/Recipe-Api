@@ -27,5 +27,7 @@ namespace Infrastructure.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Step> Steps { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
+
+        public DbSet<User> Users { get; set; }
     }
 }
