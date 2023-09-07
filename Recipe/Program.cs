@@ -1,8 +1,11 @@
 using Core.Interfaces;
+using Infrastructure.Common;
 using Infrastructure.Data;
 using Infrastructure.Data.DBInitializer;
 using Infrastructure.Repositories.implementation;
 using Infrastructure.Repositories.Interfaces;
+using Infrastructure.Services.implementation;
+using Infrastructure.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Recipe.Helpers;
 
@@ -24,6 +27,14 @@ namespace Recipe
             builder.Services.AddDbContext<StoreContext>(options
                 => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(typeof(StoreContext).Assembly.FullName)));
+
+            // Authentication
+            var tokenConfigurationSection = builder.Configuration.GetSection("TokenConfiguration");
+            builder.Services.Configure<TokenConfiguration>(
+                tokenConfigurationSection
+            );
+            
+            builder.Services.AddScoped<ITokenService, JwtService>();
 
             //Register the IBaseRepository and BaseRepository
             builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
