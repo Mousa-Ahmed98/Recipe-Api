@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using Microsoft.IdentityModel.Tokens;
+using Recipe.DTOs.Request.Common;
 
 namespace Recipe.DTOs.Request
 {
@@ -22,10 +23,10 @@ namespace Recipe.DTOs.Request
 
         public void appendOrdersToSteps()
         {
-            int i = 0;
+            byte i = 0;
             foreach (var step in Steps)
             {
-                step.Order = (byte)(i + 1); i++;
+                step.Order = i++;
             }
         }
 

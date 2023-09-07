@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using CoreEntities = Core.Entities;
 
 namespace Recipe.Controllers
 {
@@ -23,7 +21,7 @@ namespace Recipe.Controllers
         [HttpGet("GetAllCategories")]
         public async Task<IActionResult> GetAllCats()
         {
-            IEnumerable<Category> categories = await categoryRepository.GetAll();
+            IEnumerable<Category> categories = await categoryRepository.GetAsync();
             return Ok(categories);
         }
     }

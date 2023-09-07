@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Recipe.DTOs;
+using Recipe.DTOs.Request.Common;
 
 namespace Recipe.Helpers
 {

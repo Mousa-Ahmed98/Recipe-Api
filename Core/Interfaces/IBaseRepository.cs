@@ -7,14 +7,21 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IBaseRepository<T> where T : class
+    public interface IBaseRepository<TEntity> where TEntity : class
     {
-        Task<List<T>> GetAll();
-        T Add(T entity);
-        T Update(T entity);
-        T Delete(T entity);
-        IQueryable<T> Get(Expression<Func<T, bool>> filter = null,
-                             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-                             string includeProperties = "");
+        Task<IEnumerable<TEntity>> GetAsync(
+            Expression<Func<TEntity, bool>> filter = null!,
+            string includeProperties = "",
+            bool tracked = false
+            );
+        void Add(TEntity entity);
+        void AddRange(IEnumerable<TEntity> entities);
+        void DeleteById(int id);
+        void Delete(TEntity entityToDelete);
+        void DeleteRange(IEnumerable<TEntity> entities);
+        void Update(TEntity entityToUpdate);
+        void UpdateRange(IEnumerable<TEntity> entities);
+
+        Task<int> SaveChangesAsync();
     }
 }
