@@ -14,7 +14,7 @@ namespace Infrastructure.Repositories.implementation
         public async Task<IEnumerable<Recipe>> GetAllRecipes()
         {
             return await GetAsync(
-                    includeProperties: "Ingredients,Steps"
+                    includeProperties: "Category,Ingredients,Steps"
                 );
         }
 
@@ -22,7 +22,7 @@ namespace Infrastructure.Repositories.implementation
         {
             var res = await GetAsync(
                     filter: r => r.Id == id,
-                    includeProperties: "Ingredients,Steps"
+                    includeProperties: "Category,Ingredients,Steps"
                 );
             
             return res.FirstOrDefault();

@@ -30,7 +30,9 @@ namespace Recipe.Helpers
                 .ForMember(dest => dest.Ingredients, opt =>
                 opt.MapFrom(src => src.Ingredients.Select(i => new IngredientDto { Description = i.Description })))
                 .ForMember(dest => dest.Steps, opt =>
-                opt.MapFrom(src => src.Steps.Select(s => new StepDto { Description = s.Description, Order = s.Order })));
+                opt.MapFrom(src => src.Steps.Select(s => new StepDto { Description = s.Description, Order = s.Order })))
+                .ForMember(dest => dest.Category, opt =>
+                    opt.MapFrom(src => src.Category));
 
             CreateMap<Category, CategoryResponse>();
             

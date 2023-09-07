@@ -13,22 +13,24 @@ namespace Recipe.Controllers
     [ApiController]
     public class RecipeController : ControllerBase
     {
-
         private readonly IRecipeRepository recipeRepository;
+        private readonly IBaseRepository<Category> categoryRepository;
         private readonly IBaseRepository<Ingredient> ingredientRepository;
         private readonly IBaseRepository<Step> stepRepository;
         private readonly IMapper _mapper;
 
-
         public RecipeController(IRecipeRepository recipeRepository
             , IBaseRepository<Ingredient> ingredientRepository
             , IBaseRepository<Step> stepRepository
-            , IMapper mapper)
+            , IMapper mapper
+            , IBaseRepository<Category> categoryRepository
+            )
         {
             this.recipeRepository = recipeRepository;
             this.ingredientRepository = ingredientRepository;
             this.stepRepository = stepRepository;
             _mapper = mapper;
+            this.categoryRepository = categoryRepository;
         }
 
         [HttpGet]
@@ -54,7 +56,6 @@ namespace Recipe.Controllers
         public async Task<IActionResult> AddRecipe([FromBody] RecipeRequest recipeDto)
 
         {
-
             try
             {
                 recipeDto.appendOrdersToSteps();
@@ -78,11 +79,8 @@ namespace Recipe.Controllers
             }
         }
 
-
-
-
         [HttpPut("Update/{id}")]
-        public IActionResult UpdateRecipe(int id, [FromBody] RecipeRequest recipeDto)
+        public async Task<IActionResult> UpdateRecipe(int id, [FromBody] RecipeRequest recipeDto)
         {
 
             var existingRecipe = recipeRepository.GetOneById(id).Result;
@@ -91,7 +89,17 @@ namespace Recipe.Controllers
 
             if (recipeDto == null) return BadRequest("Invalid request data. recipeDto is null.");
 
-            deleteIngredientsAndSteps(existingRecipe);
+            var category = (await categoryRepository
+                .GetAsync(x => x.Id == recipeDto.CategoryId))
+                .FirstOrDefault();
+            
+            if(category == null)
+            {
+                return BadRequest("Invalid Category");
+            }
+            existingRecipe.Category = category;
+
+            DeleteIngredientsAndSteps(existingRecipe);
             recipeDto.applyUpdateChanges(existingRecipe);
 
             recipeRepository.Update(existingRecipe);
@@ -104,12 +112,12 @@ namespace Recipe.Controllers
             var recipe = recipeRepository.GetOneById(id).Result;
             if (recipe == null) return NotFound("Recipe not found");
             recipeRepository.Delete(recipe);
-            deleteIngredientsAndSteps(recipe);
+            DeleteIngredientsAndSteps(recipe);
             return Ok(recipe);
 
         }
 
-        private void deleteIngredientsAndSteps(CoreEntities.Recipe existingRecipe)
+        private void DeleteIngredientsAndSteps(CoreEntities.Recipe existingRecipe)
         {
             var ings = existingRecipe.Ingredients;
             foreach (var item in ings)
@@ -122,9 +130,5 @@ namespace Recipe.Controllers
                 stepRepository.Delete(item);
             }
         }
-
-
     }
-
-    
 }
