@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data
 {
-    public class StoreContext : DbContext
+    public class StoreContext : IdentityDbContext<ApplicationUser>
     {
         public StoreContext(DbContextOptions<StoreContext> options) : base(options)
         {
@@ -17,6 +18,7 @@ namespace Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Recipe>()
                 .HasOne(r => r.Category)
                 .WithMany(c => c.Recipes)
@@ -28,6 +30,6 @@ namespace Infrastructure.Data
         public DbSet<Step> Steps { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<ApplicationUser> Users { get; set; }
     }
 }

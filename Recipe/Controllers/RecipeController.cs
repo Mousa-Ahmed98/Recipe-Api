@@ -6,6 +6,7 @@ using Core.Entities;
 using Recipe.DTOs.Request;
 using Core.Interfaces;
 using Infrastructure.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Recipe.Controllers
 {
@@ -30,7 +31,7 @@ namespace Recipe.Controllers
             this.stepRepository = stepRepository;
             _mapper = mapper;
         }
-
+        [Authorize]
         [HttpGet]
         public async Task<IEnumerable<RecipeResponse>> GetAll()
         {
