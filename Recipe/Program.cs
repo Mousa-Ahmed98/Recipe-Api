@@ -4,6 +4,7 @@ using Infrastructure.Data.DBInitializer;
 using Infrastructure.Repositories.implementation;
 using Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Recipe.Helpers;
 
 namespace Recipe
@@ -54,6 +55,14 @@ namespace Recipe
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images")
+                    ),
+                RequestPath = "/images"
+            });
 
             app.UseHttpsRedirection();
             app.UseAuthorization();
