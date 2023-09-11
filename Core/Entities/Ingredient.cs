@@ -12,5 +12,7 @@ namespace Core.Entities
         public int Id { get; set; }
         [Required]
         public required string Description { get; set; }
+
+        public int RecipeId { get; set; }
     }
 }

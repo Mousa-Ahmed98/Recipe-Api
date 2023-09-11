@@ -6,6 +6,8 @@ using Core.Entities;
 using Recipe.DTOs.Request;
 using Core.Interfaces;
 using Infrastructure.Repositories.Interfaces;
+using RecipeAPI.DTOs.Request;
+using Infrastructure.CustomModels;
 
 namespace Recipe.Controllers
 {
@@ -34,12 +36,36 @@ namespace Recipe.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<RecipeResponse>> GetAll()
+        public async Task<PaginatedList<RecipeSummary>> GetAll(
+            [FromQuery] GetRecipeRequest request
+            )
         {
-            var res = await recipeRepository.GetAllRecipes();
-            
-            return _mapper.Map<IEnumerable<RecipeResponse>> (res);
+            var res = await recipeRepository.GetRecipesSummary(
+                request.CurrentPage,
+                request.PageSize,
+                request.Category
+                );
+
+            return res;
         }
+
+
+        [HttpGet("filter")]
+        public async Task<PaginatedList<RecipeSummary>> GetFilteredRecipes(
+            [FromQuery] FilteredRecipeRequest request
+            )
+        {
+            List<string> filterIngredients = request.Ingredients.Split(',').ToList();
+
+            var res = await recipeRepository.FilterByIngredients(
+                request.CurrentPage,
+                request.PageSize,
+                filterIngredients
+                );
+            
+            return res;
+        }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<RecipeResponse>> GetById(int id)
