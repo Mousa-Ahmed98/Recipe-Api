@@ -1,11 +1,16 @@
+using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Data.DBInitializer;
 using Infrastructure.Repositories.implementation;
 using Infrastructure.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 using Recipe.Helpers;
+using System.Text;
 
 namespace Recipe
 {
@@ -15,8 +20,7 @@ namespace Recipe
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
+            // Add services to the container
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -25,10 +29,16 @@ namespace Recipe
             builder.Services.AddDbContext<StoreContext>(options
                 => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(typeof(StoreContext).Assembly.FullName)));
+            //Register UserManager
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            options.User.RequireUniqueEmail = true)
+                .AddEntityFrameworkStores<StoreContext>();
 
             //Register the IBaseRepository and BaseRepository
             builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            builder.Services.AddScoped<IAuthService, AuthService>();
+
 
             // Add AutoMapper configuration in Startup.cs or a configuration file
             builder.Services.AddAutoMapper(typeof(RecipeMappingProfile), typeof(StepMappingProfile));
@@ -47,6 +57,27 @@ namespace Recipe
 
             });
 
+            //Configuring Jwt 
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidIssuer = "https://localhost:3000",
+                    ValidAudience = "https://localhost:4200",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("anscna@@#as321AaAcEEE37$%**$#2ffr@#fvf^(gkoeLAD8"))
+                };
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -56,6 +87,7 @@ namespace Recipe
                 app.UseSwaggerUI();
             }
 
+            app.UseHttpsRedirection();
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(
@@ -64,10 +96,10 @@ namespace Recipe
                 RequestPath = "/images"
             });
 
-            app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
-            app.MapControllers();
             app.UseCors("*");
+            app.MapControllers();
 
             await app.InitDataAsync();
 
