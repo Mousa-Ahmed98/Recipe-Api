@@ -7,6 +7,7 @@ using Infrastructure.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Recipe.Helpers;
 using System.Text;
@@ -87,10 +88,18 @@ namespace Recipe
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images")
+                    ),
+                RequestPath = "/images"
+            });
+
             app.UseAuthentication();
             app.UseAuthorization();
-            app.MapControllers();
             app.UseCors("*");
+            app.MapControllers();
 
             await app.InitDataAsync();
 
