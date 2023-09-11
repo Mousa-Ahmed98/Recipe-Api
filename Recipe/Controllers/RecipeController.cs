@@ -6,7 +6,10 @@ using Core.Entities;
 using Recipe.DTOs.Request;
 using Core.Interfaces;
 using Infrastructure.Repositories.Interfaces;
+using RecipeAPI.DTOs.Request;
+using Infrastructure.CustomModels;
 using Microsoft.AspNetCore.Authorization;
+
 
 namespace Recipe.Controllers
 {
@@ -33,13 +36,35 @@ namespace Recipe.Controllers
             _mapper = mapper;
             this.categoryRepository = categoryRepository;
         }
-        [Authorize]
+        
         [HttpGet]
-        public async Task<IEnumerable<RecipeResponse>> GetAll()
+        public async Task<PaginatedList<RecipeSummary>> GetAll(
+            [FromQuery] GetRecipeRequest request
+            )
         {
-            var res = await recipeRepository.GetAllRecipes();
+            var res = await recipeRepository.GetRecipesSummary(
+                request.CurrentPage,
+                request.PageSize,
+                request.Category
+                );
+
+            return res;
+        }
+
+        [HttpGet("filter")]
+        public async Task<PaginatedList<RecipeSummary>> GetFilteredRecipes(
+            [FromQuery] FilteredRecipeRequest request
+            )
+        {
+            List<string> filterIngredients = request.Ingredients.Split(',').ToList();
+
+            var res = await recipeRepository.FilterByIngredients(
+                request.CurrentPage,
+                request.PageSize,
+                filterIngredients
+                );
             
-            return _mapper.Map<IEnumerable<RecipeResponse>> (res);
+            return res;
         }
 
         [HttpGet("{id}")]
@@ -52,8 +77,8 @@ namespace Recipe.Controllers
             return _mapper.Map<RecipeResponse>(res);
         }
 
+        [Authorize]
         [HttpPost("Add")]
-
         public async Task<IActionResult> AddRecipe([FromBody] RecipeRequest recipeDto)
 
         {
@@ -80,6 +105,7 @@ namespace Recipe.Controllers
             }
         }
 
+        [Authorize]
         [HttpPut("Update/{id}")]
         public async Task<IActionResult> UpdateRecipe(int id, [FromBody] RecipeRequest recipeDto)
         {
@@ -107,6 +133,7 @@ namespace Recipe.Controllers
             return Ok(existingRecipe);
         }
 
+        [Authorize]
         [HttpDelete("Delete/{id}")]
         public IActionResult DeleteRecipe(int id)
         {
