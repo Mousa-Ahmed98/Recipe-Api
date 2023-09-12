@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Infrastructure.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Core.Interfaces
 {
     public interface IAuthService
     {
-        Task<AuthModel> RegisterAsync(RegisterModel model);
+        Task<RegisterResponse> RegisterAsync(RegisterModel model);
         Task<AuthModel> TokenRequestAsync(TokenRequestModel model);
     }
 }

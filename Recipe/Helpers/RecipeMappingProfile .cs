@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using Core.Entities;
-using Recipe.DTOs.Request;
-using Recipe.DTOs.Request.Common;
+using RecipeApi.DTOs.Request;
+using RecipeApi.DTOs.Request.Common;
 using RecipeAPI.DTOs.Request;
 using RecipeAPI.DTOs.Response;
+using System.Linq;
 
-namespace Recipe.Helpers
+namespace RecipeApi.Helpers
 {
     public class RecipeMappingProfile : Profile
     {

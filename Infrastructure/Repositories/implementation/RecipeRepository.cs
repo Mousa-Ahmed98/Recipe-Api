@@ -4,9 +4,11 @@ using Infrastructure.Data;
 using Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.implementation
 {
@@ -60,7 +62,8 @@ namespace Infrastructure.Repositories.implementation
                 ImageUrl = recipe.Image
             });
 
-            return await PaginatedList<RecipeSummary>.CreateAsync(res, pageNumber, pageSize);
+            return await PaginatedList<RecipeSummary>
+                .CreateAsync(res, pageNumber, pageSize);
         }
 
         public async Task<PaginatedList<RecipeSummary>> FilterByIngredients(
