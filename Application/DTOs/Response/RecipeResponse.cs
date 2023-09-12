@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
-using Recipe.DTOs.Request.Common;
+using RecipeApi.DTOs.Request.Common;
+using System.Collections.Generic;
 
 namespace RecipeAPI.DTOs.Response
 {

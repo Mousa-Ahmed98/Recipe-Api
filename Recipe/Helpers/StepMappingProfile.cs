@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using Recipe.DTOs.Request.Common;
+using RecipeApi.DTOs.Request.Common;
 
-namespace Recipe.Helpers
+namespace RecipeApi.Helpers
 {
     public class StepMappingProfile : Profile
     {

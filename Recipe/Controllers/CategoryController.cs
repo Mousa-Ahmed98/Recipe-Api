@@ -2,8 +2,10 @@
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace Recipe.Controllers
+namespace RecipeApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

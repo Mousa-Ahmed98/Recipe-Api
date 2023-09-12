@@ -1,20 +1,17 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Entities
 {
     public class ApplicationUser : IdentityUser
     {
-        //public int Id { get; set; }
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
         [Required]
         public override string UserName { get; set; }
         [Required]
         public override string Email { get; set; }
-        
     }
 }

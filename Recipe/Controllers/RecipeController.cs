@@ -3,15 +3,18 @@ using AutoMapper;
 using CoreEntities = Core.Entities;
 using RecipeAPI.DTOs.Response;
 using Core.Entities;
-using Recipe.DTOs.Request;
+using RecipeApi.DTOs.Request;
 using Core.Interfaces;
 using Infrastructure.Repositories.Interfaces;
 using RecipeAPI.DTOs.Request;
 using Infrastructure.CustomModels;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
-
-namespace Recipe.Controllers
+namespace RecipeApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -145,7 +148,7 @@ namespace Recipe.Controllers
 
         }
 
-        private void DeleteIngredientsAndSteps(CoreEntities.Recipe existingRecipe)
+        private void DeleteIngredientsAndSteps(Recipe existingRecipe)
         {
             var ings = existingRecipe.Ingredients;
             foreach (var item in ings)

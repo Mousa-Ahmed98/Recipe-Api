@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Recipe.DTOs.Request.Common
+namespace RecipeApi.DTOs.Request.Common
 {
     public record IngredientDto
     {

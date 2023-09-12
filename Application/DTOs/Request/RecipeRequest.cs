@@ -1,8 +1,9 @@
 ﻿using Core.Entities;
 using Microsoft.IdentityModel.Tokens;
-using Recipe.DTOs.Request.Common;
+using RecipeApi.DTOs.Request.Common;
+using System.Collections.Generic;
 
-namespace Recipe.DTOs.Request
+namespace RecipeApi.DTOs.Request
 {
     public record RecipeRequest
     {

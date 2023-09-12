@@ -1,6 +1,9 @@
 ﻿using Core.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using System.Threading.Tasks;
+using System;
+using System.Linq;
 
 namespace Infrastructure.Data.DBInitializer
 {

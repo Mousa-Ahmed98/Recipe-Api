@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Recipe.DTOs.Request;
+using RecipeApi.DTOs.Request;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace Recipe.Controllers
+namespace RecipeApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -28,7 +29,7 @@ namespace Recipe.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             var result = await _authService.RegisterAsync(model);
-            if(!result.IsAuthenticated)
+            if(!result.Success)
                 return BadRequest(result.Message);
             return Ok(result);
         }
@@ -41,7 +42,7 @@ namespace Recipe.Controllers
                 return BadRequest(ModelState);
             var result = await _authService.TokenRequestAsync(model);
             if (!result.IsAuthenticated)
-                return BadRequest(result.Message);
+                return Unauthorized(result.Message);
             return Ok(result);
         }
     }

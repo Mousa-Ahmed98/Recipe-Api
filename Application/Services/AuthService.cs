@@ -1,5 +1,7 @@
-﻿using Core.Entities;
+﻿using Core;
+using Core.Entities;
 using Core.Interfaces;
+using Infrastructure.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -21,15 +23,17 @@ namespace Infrastructure.Repositories.implementation
             _userManager = userManager;
         }
 
-        public async Task<AuthModel> RegisterAsync(RegisterModel model)
+        public async Task<RegisterResponse> RegisterAsync(RegisterModel model)
         {
             if (await _userManager.FindByNameAsync(model.UserName) != null)
-                return new AuthModel { Message = "Username is already used." };
+                return new RegisterResponse { Message = "Username is already used." };
             if (await _userManager.FindByEmailAsync(model.Email) != null)
-                return new AuthModel { Message = "Email is already registered." };
+                return new RegisterResponse { Message = "Email is already registered." };
             
             var user = new ApplicationUser 
             { 
+                FirstName = model.FirstName,
+                LastName = model.LastName,
                 UserName = model.UserName,
                 Email = model.Email,
             };
@@ -43,20 +47,22 @@ namespace Infrastructure.Repositories.implementation
                     errors.Append("\n");
                     errors.Append(item.Description);
                 }
-                return new AuthModel { Message = errors.ToString() };
+                return new RegisterResponse {Message = errors.ToString() };
             }
 
-            await _userManager.AddToRoleAsync(user, model.Role);
-            var jwtSecToken = await CreateJwtToken(user);
-            var roles = await _userManager.GetRolesAsync(user);
-            return new AuthModel
+            await _userManager.AddToRoleAsync(user, Roles.User);
+
+            return new RegisterResponse
             {
-                Email = user.Email,
-                Expiration = jwtSecToken.ValidTo,
-                IsAuthenticated = true,
-                Role = roles.ToList(),
-                Token = new JwtSecurityTokenHandler().WriteToken(jwtSecToken),
-                UserName = user.UserName,
+                Success = true,
+                Message = "Signed Up successfully",
+                User = new UserResponse
+                {
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                }
             };
         }
 
@@ -74,10 +80,14 @@ namespace Infrastructure.Repositories.implementation
             var roles = await _userManager.GetRolesAsync(user);
             authModel.IsAuthenticated = true;
             authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecToken);
+            authModel.Message = "Success! Access granted.";
+            authModel.UserId = user.Id;
             authModel.Email = user.Email;
+            authModel.FirstName = user.FirstName;
+            authModel.LastName = user.LastName;
             authModel.UserName = user.UserName;
             authModel.Expiration = jwtSecToken.ValidTo;
-            authModel.Role = roles.ToList();
+            authModel.Role = roles.FirstOrDefault() ?? "";
 
 
             return authModel;
@@ -91,13 +101,15 @@ namespace Infrastructure.Repositories.implementation
 
             foreach (var role in roles)
             {
-                roleClaims.Add(new Claim("roles", role));
+                roleClaims.Add(new Claim("role", role));
             }
+
             var claims = new[]
             {
+                new Claim(JwtRegisteredClaimNames.NameId, user.Id),
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             }
             .Union(userClaims)
             .Union(roleClaims);
