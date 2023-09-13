@@ -19,7 +19,7 @@ using Infrastructure.Repositories.implementation;
 using Infrastructure.Repositories.Interfaces;
 
 using RecipeApi.Helpers;
-
+using Microsoft.OpenApi.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,7 +27,44 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.DescribeAllParametersInCamelCase();
+    options.OrderActionsBy(x => x.RelativePath);
+
+    // add JWT bearer authorization 
+    // https://stackoverflow.com/a/58667736
+
+    OpenApiSecurityScheme securityDefinition = new OpenApiSecurityScheme()
+    {
+        Name = "Bearer",
+        BearerFormat = "JWT",
+        Scheme = "bearer",
+        Description = "Specify the authorization token.",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+    };
+
+    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, securityDefinition);
+
+    // Make sure swagger UI requires a Bearer token specified
+    OpenApiSecurityScheme JwtScheme = new OpenApiSecurityScheme()
+    {
+        Reference = new OpenApiReference()
+        {
+            Id = JwtBearerDefaults.AuthenticationScheme,
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+
+    OpenApiSecurityRequirement securityRequirements = new OpenApiSecurityRequirement()
+    {
+        {JwtScheme, new string[] { }},
+    };
+
+    options.AddSecurityRequirement(securityRequirements);
+});
 
 builder.Services.AddDbContext<StoreContext>(options
     => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -46,7 +83,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Add AutoMapper configuration in Startup.cs or a configuration file
 builder.Services.AddAutoMapper(typeof(RecipeMappingProfile), typeof(StepMappingProfile));
-              
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("*",
