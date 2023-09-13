@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Application.UserSession;
+using Azure.Core;
+using RecipeAPI.DTOs.Request.Common;
 
 namespace RecipeApi.Controllers
 {
@@ -25,19 +28,23 @@ namespace RecipeApi.Controllers
         private readonly IBaseRepository<Ingredient> ingredientRepository;
         private readonly IBaseRepository<Step> stepRepository;
         private readonly IMapper _mapper;
+        private readonly IUserSession _session;
 
-        public RecipeController(IRecipeRepository recipeRepository
+        public RecipeController(IRecipeRepository _recipeRepository
             , IBaseRepository<Ingredient> ingredientRepository
             , IBaseRepository<Step> stepRepository
             , IMapper mapper
             , IBaseRepository<Category> categoryRepository
+            , IUserSession session 
             )
         {
-            this.recipeRepository = recipeRepository;
+            this.recipeRepository = _recipeRepository;
             this.ingredientRepository = ingredientRepository;
             this.stepRepository = stepRepository;
             _mapper = mapper;
             this.categoryRepository = categoryRepository;
+            _session = session;
+            _recipeRepository.SetUserId(_session.UserId);
         }
         
         [HttpGet]
@@ -52,6 +59,16 @@ namespace RecipeApi.Controllers
                 );
 
             return res;
+        }
+        
+        [HttpGet("{id}")]
+        public async Task<ActionResult<RecipeResponse>> GetById(int id)
+        {
+            var res = await recipeRepository.GetOneById(id);
+            
+            if (res == null) return NotFound();
+            
+            return _mapper.Map<RecipeResponse>(res);
         }
 
         [HttpGet("filter")]
@@ -70,15 +87,45 @@ namespace RecipeApi.Controllers
             return res;
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<RecipeResponse>> GetById(int id)
+        [HttpGet("favourites")]
+        public async Task<PaginatedList<RecipeSummary>> Favourites(
+            [FromQuery] PaginatedRequest request
+            )
         {
-            var res = await recipeRepository.GetOneById(id);
-            
-            if (res == null) return NotFound();
-            
-            return _mapper.Map<RecipeResponse>(res);
+            var res = await recipeRepository.GetFavourites(
+                request.CurrentPage,
+                request.PageSize
+                );
+
+            return res;
         }
+
+
+        [HttpPost("favourites/add/{id}")]
+        public async Task<IActionResult> AddToFavourites(
+            [FromRoute] int id
+            )
+        {
+            var res = await recipeRepository.AddRecipeToFavourites(id);
+            
+            if (res == false) return NotFound();
+
+            return Ok();
+        }
+
+        [HttpDelete("favourites/remove/{id}")]
+
+        public async Task<IActionResult> RemoveFromFavourites(
+            [FromRoute] int id
+            )
+        {
+            var res = await recipeRepository.RemoveRecipeFromFavourites(id);
+
+            if (res == false) return NotFound();
+
+            return NoContent();
+        }
+
 
         [Authorize]
         [HttpPost("Add")]

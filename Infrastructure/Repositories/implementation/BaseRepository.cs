@@ -13,6 +13,7 @@ namespace Infrastructure.Repositories.implementation
     {
         internal StoreContext _context;
         internal DbSet<TEntity> _dbSet;
+        internal string _userId = null!;
         public BaseRepository(StoreContext context)
         {
             _context = context;
@@ -60,12 +61,6 @@ namespace Infrastructure.Repositories.implementation
 
         public async virtual void Delete(TEntity entityToDelete)
         {
-            /*if (_context.Entry(entityToDelete).State == EntityState.Detached)
-            {
-                _dbSet.Attach(entityToDelete);
-            }
-            _dbSet.Remove(entityToDelete);
-            _dbSet.Remove(entityToDelete);*/
             _context.Set<TEntity>().Remove(entityToDelete);
             _context.SaveChanges();
         }
@@ -77,11 +72,6 @@ namespace Infrastructure.Repositories.implementation
 
         public virtual void Update(TEntity entityToUpdate)
         {
-            /*if (_context.Entry(entityToUpdate).State == EntityState.Detached)
-            {
-                _dbSet.Attach(entityToUpdate);
-            }
-            _context.Entry(entityToUpdate).State = EntityState.Modified;*/
             _context.Update(entityToUpdate);
             _context.SaveChanges();
         }
@@ -96,6 +86,11 @@ namespace Infrastructure.Repositories.implementation
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
+        }
+
+        public void SetUserId(string userId)
+        {
+            _userId = userId;
         }
     }
 }

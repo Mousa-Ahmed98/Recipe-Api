@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Builder;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using Core;
+using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Data.DBInitializer
 {
@@ -351,6 +353,22 @@ namespace Infrastructure.Data.DBInitializer
                 };
             
                 await context.Recipes.AddRangeAsync(recipes);
+            }
+
+            if (!context.Roles.Any())
+            {
+                context.Roles.AddRange(
+                    new IdentityRole
+                    {
+                        Name = Roles.User,
+                        NormalizedName = Roles.User.ToUpper()
+                    },
+                    new IdentityRole
+                    {
+                        Name = Roles.Admin,
+                        NormalizedName = Roles.Admin.ToUpper()
+                    }
+                );
             }
 
             context.SaveChanges();
