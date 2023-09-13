@@ -134,6 +134,7 @@ namespace Infrastructure.Repositories.implementation
             
             return true;
         }
+
         public async Task<bool> RemoveRecipeFromFavourites(int recipeId)
         {
             var fav = await _context.FavouriteRecipes
@@ -152,6 +153,7 @@ namespace Infrastructure.Repositories.implementation
         {
             var query = _context.FavouriteRecipes
                 .Where(fr => fr.UserId == _userId)
+                .OrderByDescending(fr => fr.CreatedAt)
                 .Join(_context.Recipes, fr => fr.RecipeId, r => r.Id, (fr, r) => r)
                 .Select(r => new RecipeSummary
                 {
