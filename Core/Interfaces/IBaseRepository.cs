@@ -23,5 +23,7 @@ namespace Core.Interfaces
         void UpdateRange(IEnumerable<TEntity> entities);
 
         Task<int> SaveChangesAsync();
+        void SetUserId(string userId);
+
     }
 }

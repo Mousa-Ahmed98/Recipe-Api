@@ -27,12 +27,17 @@ namespace Infrastructure.Repositories.implementation
 
         public async Task<Recipe?> GetOneById(int id)
         {
-            var res = await GetAsync(
+            var res = (await GetAsync(
                     filter: r => r.Id == id,
                     includeProperties: "Category,Ingredients,Steps"
-                );
+                )).FirstOrDefault();
+
+            if(res == null) { return null; }
             
-            return res.FirstOrDefault();
+            res.InFavourites = _userId != null && _context.FavouriteRecipes
+                .Any(f => f.RecipeId == res.Id && f.UserId == _userId);
+            
+            return res;
         }
 
         public async Task<PaginatedList<RecipeSummary>> GetRecipesSummary(
@@ -59,8 +64,11 @@ namespace Infrastructure.Repositories.implementation
             {
                 Id = recipe.Id,
                 Name = recipe.Name,
-                ImageUrl = recipe.Image
+                ImageUrl = recipe.Image,
+                InFavourites = _userId != null && _context.FavouriteRecipes
+                    .Any(f => f.RecipeId == recipe.Id && f.UserId == _userId)
             });
+
 
             return await PaginatedList<RecipeSummary>
                 .CreateAsync(res, pageNumber, pageSize);
@@ -72,7 +80,7 @@ namespace Infrastructure.Repositories.implementation
         {
             if (!filterIngredients.Any())
             {
-                return await GetRecipesSummary(pageNumber, pageSize);
+                return await GetRecipesSummary(pageNumber, pageSize, null);
             }
 
             var query = _context.Ingredients.AsQueryable();
@@ -101,10 +109,60 @@ namespace Infrastructure.Repositories.implementation
                     Id = x.Id,
                     Name = x.Name,
                     ImageUrl = x.Image,
+                    InFavourites = _userId != null && _context.FavouriteRecipes
+                        .Any(f => f.RecipeId == x.Id && f.UserId == _userId)
                 });
 
             return await PaginatedList<RecipeSummary>.CreateAsync
                 (filteredRecipes, pageNumber, pageSize);
+        }
+
+        public async Task<bool> AddRecipeToFavourites(int recipeId)
+        {
+            Recipe? recipe = await _context.Recipes.Where(r => r.Id == recipeId)
+                .FirstOrDefaultAsync();
+            
+            if (recipe == null) return false;
+
+            _context.FavouriteRecipes.Add(new FavouriteRecipes
+            {
+                RecipeId = recipeId,
+                UserId = _userId
+            });
+
+            await _context.SaveChangesAsync();
+            
+            return true;
+        }
+        public async Task<bool> RemoveRecipeFromFavourites(int recipeId)
+        {
+            var fav = await _context.FavouriteRecipes
+                .Where(x => x.RecipeId == recipeId && x.UserId == _userId)
+                .FirstOrDefaultAsync();
+            
+            if(fav == null) return false;
+
+            _context.FavouriteRecipes.Remove(fav);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<PaginatedList<RecipeSummary>> GetFavourites(int currentPage, int pageSize)
+        {
+            var query = _context.FavouriteRecipes
+                .Where(fr => fr.UserId == _userId)
+                .Join(_context.Recipes, fr => fr.RecipeId, r => r.Id, (fr, r) => r)
+                .Select(r => new RecipeSummary
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    ImageUrl = r.Image,
+                    InFavourites = true
+                });
+
+            return await PaginatedList<RecipeSummary>.CreateAsync(query, currentPage, pageSize);
+
         }
     }
 }
