@@ -19,8 +19,12 @@ using Infrastructure.Repositories.implementation;
 using Infrastructure.Repositories.Interfaces;
 
 using RecipeApi.Helpers;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using Application.UserSession;
 using Microsoft.OpenApi.Models;
-
+using System.Reflection;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +84,8 @@ builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserSession, Session>();
 
 // Add AutoMapper configuration in Startup.cs or a configuration file
 builder.Services.AddAutoMapper(typeof(RecipeMappingProfile), typeof(StepMappingProfile));
