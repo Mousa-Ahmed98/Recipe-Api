@@ -1,4 +1,5 @@
-﻿using Core.Entities;
+﻿using Application.DTOs.Response;
+using Core.Entities;
 using RecipeApi.DTOs.Request.Common;
 using System.Collections.Generic;
 
@@ -10,6 +11,7 @@ namespace RecipeAPI.DTOs.Response
         public string Name { get; set; }
         public string ImageUrl { get; set; } 
         public bool InFavourites { get; set; }
+        public PlanSummaryResponse Plan { get; set; }
         public CategoryResponse Category { get; set; }
         public List<IngredientDto> Ingredients { get; set; }
         public List<StepDto> Steps { get; set; }
