@@ -70,7 +70,7 @@ namespace RecipeApi.Controllers
             
             return _mapper.Map<RecipeResponse>(res);
         }
-
+        
         [HttpGet("filter")]
         public async Task<PaginatedList<RecipeSummary>> GetFilteredRecipes(
             [FromQuery] FilteredRecipeRequest request
@@ -87,6 +87,19 @@ namespace RecipeApi.Controllers
             return res;
         }
 
+        [HttpGet("search")]
+        public async Task<PaginatedList<RecipeSummary>> GetFilteredRecipes(
+            [FromQuery] string query, [FromQuery] PaginatedRequest request
+            )
+        {
+            var res = await recipeRepository.SearchRecipes(
+                query, request.CurrentPage, request.PageSize
+                );
+
+            return res;
+        }
+
+        [Authorize]
         [HttpGet("favourites")]
         public async Task<PaginatedList<RecipeSummary>> Favourites(
             [FromQuery] PaginatedRequest request
@@ -100,7 +113,7 @@ namespace RecipeApi.Controllers
             return res;
         }
 
-
+        [Authorize]
         [HttpPost("favourites/add/{id}")]
         public async Task<IActionResult> AddToFavourites(
             [FromRoute] int id
@@ -113,8 +126,8 @@ namespace RecipeApi.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpDelete("favourites/remove/{id}")]
-
         public async Task<IActionResult> RemoveFromFavourites(
             [FromRoute] int id
             )
