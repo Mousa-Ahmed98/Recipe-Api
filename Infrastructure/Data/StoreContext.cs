@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using Infrastructure.Configurations;
+using Inpastructure.Configurations;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -25,6 +26,7 @@ namespace Infrastructure.Data
                 .HasForeignKey(r => r.CategoryId);
             
             modelBuilder.ApplyConfiguration(new FavouritesConfigurations());
+            modelBuilder.ApplyConfiguration(new PlansConfigurations());
         }
 
         public DbSet<Recipe> Recipes { get; set; }

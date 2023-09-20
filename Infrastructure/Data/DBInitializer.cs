@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using Core;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data.DBInitializer
 {
@@ -27,7 +28,7 @@ namespace Infrastructure.Data.DBInitializer
 
             context.Database.EnsureCreated();
 
-
+            #region SeedCategories
             if (!context.Categories.Any())
             {
                 var categories = new[]
@@ -45,19 +46,80 @@ namespace Infrastructure.Data.DBInitializer
                 context.Categories.AddRange(categories);
                 context.SaveChanges();
             }
+            #endregion
 
 
+            #region SeedRoles
+            if (!context.Roles.Any())
+            {
+                context.Roles.AddRange(
+                    new IdentityRole
+                    {
+                        Name = Roles.User,
+                        NormalizedName = Roles.User.ToUpper()
+                    },
+                    new IdentityRole
+                    {
+                        Name = Roles.Admin,
+                        NormalizedName = Roles.Admin.ToUpper()
+                    }
+                );
+
+                context.SaveChanges();
+            }
+            #endregion
+
+
+            #region SeedUsers
+            if (!context.Users.Any()) { 
+
+                var user1 =
+                    new ApplicationUser
+                    {
+                        FirstName = "john",
+                        LastName = "doe",
+                        Email = "johndoe@gmail.com",
+                        UserName = "john123",
+                    };
+
+                var Admin =
+                    new ApplicationUser
+                    {
+                        FirstName = "admin",
+                        LastName = "ln",
+                        Email = "admin@gmail.com",
+                        UserName = "admin123",
+
+                    };
+
+                var userManager = serviceScope.ServiceProvider
+                    .GetService<UserManager<ApplicationUser>>();
+
+                await userManager.CreateAsync(user1, "user@A123");
+                await userManager.AddToRoleAsync(user1, Roles.User);
+
+                await userManager.CreateAsync(Admin, "admin@A123");
+                await userManager.AddToRoleAsync(Admin, Roles.Admin);
+            }
+            #endregion
+
+
+            #region SeedRecipes
             if (!context.Recipes.Any())
             {
                 var mainCategory = context.Categories.FirstOrDefault();
                 var drinksCategory = context.Categories.FirstOrDefault(x => x.Name == "Drinks");
-
+                
+                var user = await context.Users.Where(x => x.UserName == "john123").FirstOrDefaultAsync();
+                if(user == null ) { throw new ArgumentNullException(nameof(user)); }
+                
                 var recipes = new[]
                 {
                     new Recipe(){
                         Name = "Frito Pie",
                         CategoryId = mainCategory.Id,
                         Image = "Frito-Pie.jpg",
+                        Author = user,
                         Ingredients = new []{
                             new Ingredient(){ Description = "1/2 pound ground beef" },
                             new Ingredient(){ Description = "1/4 cup water" },
@@ -72,10 +134,12 @@ namespace Infrastructure.Data.DBInitializer
                             new Step(){ Description = "Heat a large skillet over medium-high heat. Cook and stir ground beef in the hot skillet until browned and crumbly, 5 to 7 minutes. Drain and discard grease. Stir in water, tomato paste, chili powder, cumin, onion powder, and garlic powder. Stir in beans; cook until heated through, about 3 minutes. " },
                             new Step(){ Description = "Divide corn chips into 4 bowls, top with the chili mix, then sprinkle with diced onions, jalapeño slices, and Cheddar cheese. Serve immediately. " },
                         }
+                        
                     },
                     new Recipe(){
                         Name = "Carrot Cake Cupcakes with Cream Cheese Frosting",
                         CategoryId = mainCategory.Id,
+                        Author = user,
                         Image = "Carrot-Cake-Cupcakes.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "2 cups all-purpose flour" },
@@ -106,6 +170,7 @@ namespace Infrastructure.Data.DBInitializer
                     new Recipe(){
                         Name = "French Toast Pancakes",
                         CategoryId = mainCategory.Id,
+                        Author = user,
                         Image = "french-toast-pancakes.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "2 teaspoons vegetable oil" },
@@ -130,6 +195,7 @@ namespace Infrastructure.Data.DBInitializer
                         Name = "Cajun Shrimp and Sausage Pasta Bake",
                         CategoryId = mainCategory.Id,
                         Image = "Cajun-Shrimp-and-Sausage-Pasta-Bake.jpg",
+                        Author = user,
                         Ingredients = new []{
                             new Ingredient(){ Description = "10 ounces penne pasta" },
                             new Ingredient(){ Description = "1 tablespoon butter" },
@@ -153,6 +219,7 @@ namespace Infrastructure.Data.DBInitializer
                     new Recipe(){
                         Name = "Steak and Potato Foil Packets",
                         CategoryId = mainCategory.Id,
+                        Author = user,
                         Image = "Steak-and-Potatoes-Foil-Packs.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "1 pound small Yukon Gold potatoes, halved" },
@@ -176,6 +243,7 @@ namespace Infrastructure.Data.DBInitializer
                     new Recipe(){
                         Name = "Shrimp and Pepper Stir-Fry",
                         CategoryId = mainCategory.Id,
+                        Author = user,
                         Image = "Shrimp-and-Pepper-Stir-Fry.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "1/2 cup chicken broth" },
@@ -195,6 +263,7 @@ namespace Infrastructure.Data.DBInitializer
                     new Recipe(){
                         Name = "Bibimbap (Korean Rice With Mixed Vegetables)",
                         CategoryId = mainCategory.Id,
+                        Author = user,
                         Image = "KoreanRiceWithMixedVegtables.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "1 English cucumber, cut into matchsticks" },
@@ -226,6 +295,7 @@ namespace Infrastructure.Data.DBInitializer
                     new Recipe(){
                         Name = "Fried Chicken",
                         CategoryId = mainCategory.Id,
+                        Author = user,
                         Image = "fired-chicken.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "30 saltine crackers" },
@@ -247,6 +317,7 @@ namespace Infrastructure.Data.DBInitializer
                     new Recipe(){
                         Name = "Fast Chicken Soup Base",
                         CategoryId = mainCategory.Id,
+                        Author = user,
                         Image = "Fast-Chicken-Soup-Base.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "2 quarts chicken broth" },
@@ -267,6 +338,7 @@ namespace Infrastructure.Data.DBInitializer
                     new Recipe(){
                         Name = "Baked Beer Can Chicken",
                         CategoryId = mainCategory.Id,
+                        Author = user,
                         Image = "Baked-Can-Chicken.png",
                         Ingredients = new []{
                             new Ingredient(){ Description = "¼ cup garlic powder" },
@@ -293,6 +365,7 @@ namespace Infrastructure.Data.DBInitializer
                     new Recipe(){
                         Name = "Buttermilk Pancakes",
                         CategoryId = mainCategory.Id,
+                        Author = user,
                         Image = "ButtermilkPancakes.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "3 cups all-purpose flour" },
@@ -316,6 +389,7 @@ namespace Infrastructure.Data.DBInitializer
                     new Recipe(){
                         Name = "Chocolate Banana Milkshake",
                         CategoryId = drinksCategory.Id,
+                        Author = user,
                         Image = "Chocolate-Banana-Milkshake.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "1 banana, frozen and chunked" },
@@ -331,6 +405,7 @@ namespace Infrastructure.Data.DBInitializer
                     new Recipe(){
                         Name = "Hot Chocolate",
                         CategoryId = drinksCategory.Id,
+                        Author = user,
                         Image = "Hot-Chocolate.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "1 cup whole milk" },
@@ -349,29 +424,11 @@ namespace Infrastructure.Data.DBInitializer
                     },
 
 
-
                 };
-            
                 await context.Recipes.AddRangeAsync(recipes);
+                await context.SaveChangesAsync();
             }
-
-            if (!context.Roles.Any())
-            {
-                context.Roles.AddRange(
-                    new IdentityRole
-                    {
-                        Name = Roles.User,
-                        NormalizedName = Roles.User.ToUpper()
-                    },
-                    new IdentityRole
-                    {
-                        Name = Roles.Admin,
-                        NormalizedName = Roles.Admin.ToUpper()
-                    }
-                );
-            }
-
-            context.SaveChanges();
+            #endregion
         }
     }
 }
