@@ -27,14 +27,17 @@ namespace Infrastructure.Repositories.Implementation
 
         public async Task<Recipe?> GetOneById(int id)
         {
-            var res = await _context.Recipes
+            var query = _context.Recipes
                 .Where(x => x.Id == id)
                 .Include(x => x.Category)
-                .Include(x => x.Ingredients)
                 .Include(x => x.Steps)
-                .Include(x => x.Plans.Where(p => p.UserId == _userId))
-                .FirstOrDefaultAsync();
+                .Include(x => x.Ingredients)
+                .Include(x => x.Plans
+                    .Where(p => _userId != null && p.UserId == _userId) // TODO :: refine this line later
+                    );
 
+            var res = await query.FirstOrDefaultAsync();
+            
             if (res == null) { return null; }
             
             res.InFavourites = _userId != null && _context.FavouriteRecipes
@@ -71,7 +74,6 @@ namespace Infrastructure.Repositories.Implementation
                 InFavourites = _userId != null && _context.FavouriteRecipes
                     .Any(f => f.RecipeId == recipe.Id && f.UserId == _userId)
             });
-
 
             return await PaginatedList<RecipeSummary>
                 .CreateAsync(res, pageNumber, pageSize);
@@ -137,6 +139,7 @@ namespace Infrastructure.Repositories.Implementation
             
             return true;
         }
+
         public async Task<PaginatedList<RecipeSummary>> SearchRecipes(string query, int currentPage, int pageSize)
         {
             var recipes = _context.Recipes
@@ -180,7 +183,28 @@ namespace Infrastructure.Repositories.Implementation
                 });
 
             return await PaginatedList<RecipeSummary>.CreateAsync(query, currentPage, pageSize);
-
         }
+
+        public async Task<PaginatedList<RecipeSummary>> GetRecipesByUsername(string username, int currentPage, int pageSize)
+        {
+            var user = _context.Users.Where(x => x.UserName== username).FirstOrDefault();
+            
+            if(user == null)
+            {
+                // exception 
+            }
+
+            var query = _context.Recipes
+                .Where(r => r.AuthorId == user.Id)
+                .Select(r => new RecipeSummary
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    ImageUrl = r.Image,
+                });
+            
+            return await PaginatedList<RecipeSummary>.CreateAsync(query, currentPage, pageSize);
+        }
+
     }
 }
