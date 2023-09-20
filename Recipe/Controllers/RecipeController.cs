@@ -14,13 +14,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Application.UserSession;
-using Azure.Core;
 using RecipeAPI.DTOs.Request.Common;
 
 namespace RecipeApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class RecipeController : ControllerBase
     {
         private readonly IRecipeRepository recipeRepository;
@@ -35,7 +35,7 @@ namespace RecipeApi.Controllers
             , IBaseRepository<Step> stepRepository
             , IMapper mapper
             , IBaseRepository<Category> categoryRepository
-            , IUserSession session 
+            , IUserSession session
             )
         {
             this.recipeRepository = _recipeRepository;
@@ -46,8 +46,9 @@ namespace RecipeApi.Controllers
             _session = session;
             _recipeRepository.SetUserId(_session.UserId);
         }
-        
+
         [HttpGet]
+        [AllowAnonymous]
         public async Task<PaginatedList<RecipeSummary>> GetAll(
             [FromQuery] GetRecipeRequest request
             )
@@ -60,18 +61,20 @@ namespace RecipeApi.Controllers
 
             return res;
         }
-        
+
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<RecipeResponse>> GetById(int id)
         {
             var res = await recipeRepository.GetOneById(id);
-            
+
             if (res == null) return NotFound();
-            
+
             return _mapper.Map<RecipeResponse>(res);
         }
-        
+
         [HttpGet("filter")]
+        [AllowAnonymous]
         public async Task<PaginatedList<RecipeSummary>> GetFilteredRecipes(
             [FromQuery] FilteredRecipeRequest request
             )
@@ -83,13 +86,14 @@ namespace RecipeApi.Controllers
                 request.PageSize,
                 filterIngredients
                 );
-            
+
             return res;
         }
 
         [HttpGet("search")]
         public async Task<PaginatedList<RecipeSummary>> GetFilteredRecipes(
-            [FromQuery] string query, [FromQuery] PaginatedRequest request
+            [FromQuery] string query, 
+            [FromQuery] PaginatedRequest request
             )
         {
             var res = await recipeRepository.SearchRecipes(
@@ -99,7 +103,7 @@ namespace RecipeApi.Controllers
             return res;
         }
 
-        [Authorize]
+
         [HttpGet("favourites")]
         public async Task<PaginatedList<RecipeSummary>> Favourites(
             [FromQuery] PaginatedRequest request
@@ -113,20 +117,18 @@ namespace RecipeApi.Controllers
             return res;
         }
 
-        [Authorize]
         [HttpPost("favourites/add/{id}")]
         public async Task<IActionResult> AddToFavourites(
             [FromRoute] int id
             )
         {
             var res = await recipeRepository.AddRecipeToFavourites(id);
-            
+
             if (res == false) return NotFound();
 
             return Ok();
         }
 
-        [Authorize]
         [HttpDelete("favourites/remove/{id}")]
         public async Task<IActionResult> RemoveFromFavourites(
             [FromRoute] int id
@@ -139,8 +141,6 @@ namespace RecipeApi.Controllers
             return NoContent();
         }
 
-
-        [Authorize]
         [HttpPost("Add")]
         public async Task<IActionResult> AddRecipe([FromBody] RecipeRequest recipeDto)
 
@@ -149,7 +149,7 @@ namespace RecipeApi.Controllers
             {
                 recipeDto.appendOrdersToSteps();
                 string validationMessage = recipeDto.Validata();
-                if (validationMessage=="")
+                if (validationMessage == "")
                 {
                     var recipe = _mapper.Map<CoreEntities.Recipe>(recipeDto);
                     recipeRepository.Add(recipe);
@@ -168,7 +168,6 @@ namespace RecipeApi.Controllers
             }
         }
 
-        [Authorize]
         [HttpPut("Update/{id}")]
         public async Task<IActionResult> UpdateRecipe(int id, [FromBody] RecipeRequest recipeDto)
         {
@@ -182,8 +181,8 @@ namespace RecipeApi.Controllers
             var category = (await categoryRepository
                 .GetAsync(x => x.Id == recipeDto.CategoryId))
                 .FirstOrDefault();
-            
-            if(category == null)
+
+            if (category == null)
             {
                 return BadRequest("Invalid Category");
             }
@@ -196,7 +195,6 @@ namespace RecipeApi.Controllers
             return Ok(existingRecipe);
         }
 
-        [Authorize]
         [HttpDelete("Delete/{id}")]
         public IActionResult DeleteRecipe(int id)
         {
