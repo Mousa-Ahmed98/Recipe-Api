@@ -7,7 +7,7 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 
-namespace Infrastructure.Repositories.implementation
+namespace Infrastructure.Repositories.Implementation
 {
     public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class
     {
@@ -64,6 +64,7 @@ namespace Infrastructure.Repositories.implementation
             _context.Set<TEntity>().Remove(entityToDelete);
             _context.SaveChanges();
         }
+
         public async void DeleteRange(IEnumerable<TEntity> entities)
         {
             _context.RemoveRange(entities);
@@ -76,12 +77,10 @@ namespace Infrastructure.Repositories.implementation
             _context.SaveChanges();
         }
 
-
         public void UpdateRange(IEnumerable<TEntity> entities)
         {
             _context.UpdateRange(entities);
         }
-
 
         public async Task<int> SaveChangesAsync()
         {
@@ -91,6 +90,11 @@ namespace Infrastructure.Repositories.implementation
         public void SetUserId(string userId)
         {
             _userId = userId;
+        }
+
+        public void ThrowIfUserIdNull()
+        {
+            if (_userId == null) { throw new ArgumentNullException("UserId Was not set!"); }
         }
     }
 }

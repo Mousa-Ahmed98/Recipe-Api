@@ -12,7 +12,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories.implementation
+namespace Infrastructure.Repositories.Implementation
 {
     public class AuthService : IAuthService
     {

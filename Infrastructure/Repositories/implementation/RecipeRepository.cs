@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using System.Numerics;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories.implementation
+namespace Infrastructure.Repositories.Implementation
 {
     public class RecipeRepository : BaseRepository<Recipe>, IRecipeRepository
     {
@@ -27,12 +27,15 @@ namespace Infrastructure.Repositories.implementation
 
         public async Task<Recipe?> GetOneById(int id)
         {
-            var res = (await GetAsync(
-                    filter: r => r.Id == id,
-                    includeProperties: "Category,Ingredients,Steps"
-                )).FirstOrDefault();
+            var res = await _context.Recipes
+                .Where(x => x.Id == id)
+                .Include(x => x.Category)
+                .Include(x => x.Ingredients)
+                .Include(x => x.Steps)
+                .Include(x => x.Plans.Where(p => p.UserId == _userId))
+                .FirstOrDefaultAsync();
 
-            if(res == null) { return null; }
+            if (res == null) { return null; }
             
             res.InFavourites = _userId != null && _context.FavouriteRecipes
                 .Any(f => f.RecipeId == res.Id && f.UserId == _userId);
@@ -133,6 +136,19 @@ namespace Infrastructure.Repositories.implementation
             await _context.SaveChangesAsync();
             
             return true;
+        }
+        public async Task<PaginatedList<RecipeSummary>> SearchRecipes(string query, int currentPage, int pageSize)
+        {
+            var recipes = _context.Recipes
+                .Where(x => x.Name.Contains(query))
+                .Select(x=> new RecipeSummary
+                {
+                    Id = x.Id,
+                    ImageUrl = x.Image,
+                    Name = x.Name,
+                });
+
+            return await PaginatedList<RecipeSummary>.CreateAsync(recipes, currentPage, pageSize);
         }
 
         public async Task<bool> RemoveRecipeFromFavourites(int recipeId)

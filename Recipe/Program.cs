@@ -15,7 +15,7 @@ using Core.Interfaces;
 
 using Infrastructure.Data;
 using Infrastructure.Data.DBInitializer;
-using Infrastructure.Repositories.implementation;
+using Infrastructure.Repositories.Implementation;
 using Infrastructure.Repositories.Interfaces;
 
 using RecipeApi.Helpers;
@@ -81,6 +81,7 @@ options.User.RequireUniqueEmail = true)
 
 //Register the IBaseRepository and BaseRepository
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+builder.Services.AddScoped<IPlansRepository, PlansRepository>();
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IAuthService, AuthService>();
 
@@ -145,9 +146,9 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/images"
 });
 
+app.UseCors("*");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("*");
 
 app.MapControllers();
 

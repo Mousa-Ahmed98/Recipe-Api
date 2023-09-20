@@ -20,5 +20,6 @@ namespace Core.Entities
         public bool InFavourites { get; set; }
         public ICollection<Ingredient> Ingredients { get; set; }
         public  ICollection<Step> Steps { get; set; }
+        public  ICollection<Plan> Plans { get; set; }
     }
 }

@@ -32,6 +32,7 @@ namespace Infrastructure.Data
         public DbSet<Step> Steps { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<FavouriteRecipes> FavouriteRecipes { get; set; }
+        public DbSet<Plan> Plans { get; set; }
 
         public DbSet<ApplicationUser> Users { get; set; }
     }
