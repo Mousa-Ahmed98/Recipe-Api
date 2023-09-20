@@ -1,11 +1,17 @@
-﻿using Application.DTOs.Response;
-using Application.UserSession;
-using AutoMapper;
-using Infrastructure.Repositories.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
+using Infrastructure.Exceptions;
+using Infrastructure.Repositories.Interfaces;
+
+using Application.DTOs.Response;
+using Application.Exceptions;
+using Application.UserSession;
+
 
 namespace RecipeApi.Controllers
 {
@@ -44,15 +50,32 @@ namespace RecipeApi.Controllers
             [FromQuery] PlanRequest request
             )
         {
-            var res = await _plansRepository.PlanOut(
-                request.Day, request.RecipeId
+            try
+            {
+                var res = await _plansRepository.PlanOut(
+                    request.Day, request.RecipeId
                 );
 
-            if (res == null) return NotFound();
-
-            return new CreatedResult(nameof(PlanOut), 
-                _mapper.Map<PlanResponse>( res )
-                );
+                return new CreatedResult(nameof(PlanOut),
+                    _mapper.Map<PlanResponse>(res)
+                    );
+            }
+            catch (UnAuthorizedException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPut("{id}/change-date")]
@@ -61,11 +84,28 @@ namespace RecipeApi.Controllers
             [FromQuery] string date
         )
         {
-            var res = await _plansRepository.ChangePlanDate(id, date);
+            try 
+            { 
+                var res = await _plansRepository.ChangePlanDate(id, date);
 
-            if (res == false) return NotFound();
-
-            return NoContent();
+                return NoContent();
+            }
+            catch (UnAuthorizedException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
@@ -73,11 +113,28 @@ namespace RecipeApi.Controllers
             [FromRoute] int id
             )
         {
-            var res = await _plansRepository.PlanOff(id);
+            try 
+            { 
+                var res = await _plansRepository.PlanOff(id);
 
-            if (res == false) return NotFound();
-
-            return NoContent();
+                return NoContent();
+            }
+            catch (UnAuthorizedException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
     }

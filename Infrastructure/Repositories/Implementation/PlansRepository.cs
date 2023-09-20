@@ -1,5 +1,8 @@
 ﻿using Core.Entities;
 using Infrastructure.Data;
+using Infrastructure.Exceptions;
+using Infrastructure.Exceptions.Plan;
+using Infrastructure.Exceptions.Recipe;
 using Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -27,9 +30,17 @@ namespace Infrastructure.Repositories.Implementation
 
         public async Task<Plan> PlanOut(string day, int recipeId)
         {
-            ThrowIfUserIdNull();
+            if (_userId == null) { 
+                throw new UnAuthorizedException(); 
+            }
 
             var date = ParseDate(day);
+
+            var recipe = await _context.Recipes.FirstOrDefaultAsync(x => x.Id == recipeId);
+
+            if(recipe == null) {
+                throw new RecipeNotFoundException(recipeId);
+            }
 
             var plan = new Plan()
             {
@@ -47,7 +58,10 @@ namespace Infrastructure.Repositories.Implementation
 
         public async Task<bool> PlanOff(int planId)
         {
-            ThrowIfUserIdNull();
+            if (_userId == null)
+            {
+                throw new UnAuthorizedException();
+            }
 
             var plansForTheDay = await _context.Plans
                 .Where(x => x.Id == planId)
@@ -55,14 +69,12 @@ namespace Infrastructure.Repositories.Implementation
             
             if (plansForTheDay == null)
             {
-                // todo : thorw meaningful exception 
-                return false;
+                throw new PlanNotFoundException(planId);
             }
 
             if(plansForTheDay.UserId != _userId)
             {
-                // todo : thorw meaningful exception 
-                return false;
+                throw new UnAuthorizedException();
             }
 
             _context.Plans.RemoveRange(plansForTheDay);
@@ -73,15 +85,18 @@ namespace Infrastructure.Repositories.Implementation
 
         public async Task<bool> ChangePlanDate(int planId, string date)
         {
-            var plan = await _context.Plans.Where(x => x.Id == planId).FirstOrDefaultAsync();
+            var plan = await _context.Plans.Where(x => x.Id == planId)
+                .FirstOrDefaultAsync();
             
             if (plan == null)
-                // todo : throw meaning exception
-                return false;
+            {
+                throw new PlanNotFoundException(planId);
+            }
 
             if (plan.UserId != _userId)
-                // todo : throw meaning exception
-                return false;
+            {
+                throw new UnAuthorizedException();
+            }
             
             plan.Day = ParseDate(date);
 
@@ -93,7 +108,10 @@ namespace Infrastructure.Repositories.Implementation
 
         public async Task<bool> SwitchPlans(string day1, string day2)
         {
-            ThrowIfUserIdNull();
+            if (_userId == null)
+            {
+                throw new UnAuthorizedException();
+            }
 
             var date1 = ParseDate(day1);
             var date2 = ParseDate(day2);
@@ -127,7 +145,7 @@ namespace Infrastructure.Repositories.Implementation
             
             if (!success)
             {
-                // todo: throw exception
+                throw new InvalidDateFormatException(inputDate);
             }
             
             return parsedDate;

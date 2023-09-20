@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using Infrastructure.Exceptions;
 
 namespace Infrastructure.Repositories.Implementation
 {
@@ -94,7 +95,7 @@ namespace Infrastructure.Repositories.Implementation
 
         public void ThrowIfUserIdNull()
         {
-            if (_userId == null) { throw new ArgumentNullException("UserId Was not set!"); }
+            if (_userId == null) { throw new UnAuthorizedException(); }
         }
     }
 }

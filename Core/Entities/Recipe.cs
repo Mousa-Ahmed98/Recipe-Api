@@ -18,6 +18,8 @@ namespace Core.Entities
         public Category Category { get; set; }
         [NotMapped]
         public bool InFavourites { get; set; }
+        public string AuthorId { get; set; }
+        public ApplicationUser Author { get; set; }
         public ICollection<Ingredient> Ingredients { get; set; }
         public  ICollection<Step> Steps { get; set; }
         public  ICollection<Plan> Plans { get; set; }
