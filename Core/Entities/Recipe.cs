@@ -19,5 +19,6 @@ namespace Core.Entities
 
         public required ICollection<Ingredient> Ingredients { get; set; }
         public required ICollection<Step> Steps { get; set; }
+        public required ICollection<Review> Reviews { get; set; }
     }
 }

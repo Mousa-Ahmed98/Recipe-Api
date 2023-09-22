@@ -7,17 +7,21 @@ using Recipe.DTOs.Request;
 using Core.Interfaces;
 using Infrastructure.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Recipe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class RecipeController : ControllerBase
     {
         private readonly IRecipeRepository recipeRepository;
         private readonly IBaseRepository<Category> categoryRepository;
         private readonly IBaseRepository<Ingredient> ingredientRepository;
         private readonly IBaseRepository<Step> stepRepository;
+        private readonly IBaseRepository<Review> reviewRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
 
         public RecipeController(IRecipeRepository recipeRepository
@@ -25,21 +29,27 @@ namespace Recipe.Controllers
             , IBaseRepository<Step> stepRepository
             , IMapper mapper
             , IBaseRepository<Category> categoryRepository
-            )
+            , IBaseRepository<Review> reviewRepository
+            ,UserManager<ApplicationUser> userManager)
         {
             this.recipeRepository = recipeRepository;
             this.ingredientRepository = ingredientRepository;
             this.stepRepository = stepRepository;
             _mapper = mapper;
             this.categoryRepository = categoryRepository;
+            this.reviewRepository = reviewRepository;
+            _userManager = userManager;
         }
-        [Authorize]
+        //[Authorize]
         [HttpGet]
-        public async Task<IEnumerable<RecipeResponse>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var res = await recipeRepository.GetAllRecipes();
             
-            return _mapper.Map<IEnumerable<RecipeResponse>> (res);
+            var result = _mapper.Map<IEnumerable<RecipeResponse>>(res);
+            return Ok(result);
+
+            
         }
 
         [HttpGet("{id}")]
@@ -57,8 +67,6 @@ namespace Recipe.Controllers
         public async Task<IActionResult> AddRecipe([FromBody] RecipeRequest recipeDto)
 
         {
-            try
-            {
                 recipeDto.appendOrdersToSteps();
                 string validationMessage = recipeDto.Validata();
                 if (validationMessage=="")
@@ -73,11 +81,6 @@ namespace Recipe.Controllers
                 {
                     return BadRequest(validationMessage);
                 }
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
         }
 
         [HttpPut("Update/{id}")]
@@ -115,8 +118,67 @@ namespace Recipe.Controllers
             recipeRepository.Delete(recipe);
             DeleteIngredientsAndSteps(recipe);
             return Ok(recipe);
+        }
+
+
+
+
+        [HttpPost("AddReview")]
+        public async Task<IActionResult> AddReview(ReviewDto reviewDto)
+        {
+            var recipe = await recipeRepository.GetOneById(reviewDto.RecipeId);
+            if (recipe == null) return NotFound("Recipe does not exist.");
+            var user = await _userManager.FindByIdAsync(reviewDto.AuthorId);
+            if (user == null) return NotFound($"User with id {reviewDto.AuthorId} is not found.");
+            //Implement mapping
+            Review review = new Review {
+                rate = reviewDto.rate,
+                content = reviewDto.content,
+                AuthorId = reviewDto.AuthorId,
+                RecipeId = reviewDto.RecipeId,
+                AuthorName = reviewDto.AuthorName
+            };
+            //recipe.Reviews.Add(review);
+            reviewRepository.Add(review);
+            return Ok(review);
+        }
+
+        [HttpPut("UpdateReview")]
+        public async Task<IActionResult> UpdateReview(UpdateReviewDto updatedReviewDto)
+        {
+            var recipe = await recipeRepository.GetOneById(updatedReviewDto.RecipeId);
+            var user = await _userManager.FindByIdAsync(updatedReviewDto.AuthorId);
+            if (recipe == null) return NotFound("Recipe does not exist.");
+            if (user == null) return NotFound($"User with id {updatedReviewDto.AuthorId} is not found.");
+            Review review = await reviewRepository.FindByIdAsync(updatedReviewDto.Id);
+            if (review is not null)
+            {
+                review.content = updatedReviewDto.content;
+                review.rate = updatedReviewDto.rate;
+                reviewRepository.Update(review);
+                return Ok(review);
+            }
+            return NotFound("Review not found.");
+        }
+
+        [HttpDelete("DeleteReview/{id}")]
+        public async Task<IActionResult> UpdateReview(int id)
+        {
+
+            Review review = await reviewRepository.FindByIdAsync(id);
+            if (review is not null)
+            {
+                reviewRepository.Delete(review);
+                return Ok(review);
+            }
+            return NotFound("Review not found.");
+
 
         }
+
+
+
+
 
         private void DeleteIngredientsAndSteps(CoreEntities.Recipe existingRecipe)
         {
@@ -131,5 +193,6 @@ namespace Recipe.Controllers
                 stepRepository.Delete(item);
             }
         }
+
     }
 }

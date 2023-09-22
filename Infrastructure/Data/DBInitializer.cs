@@ -10,7 +10,7 @@ namespace Infrastructure.Data.DBInitializer
         {
             using (var serviceScope = applicationBuilder.ApplicationServices.CreateScope())
             {
-                await SeedDataAsync(serviceScope);
+                //await SeedDataAsync(serviceScope);
             }
         }
 
@@ -63,6 +63,9 @@ namespace Infrastructure.Data.DBInitializer
                             new Step(){ Description = "step2" },
                             new Step(){ Description = "step3" },
                             new Step(){ Description = "step4" },
+                        },
+                        Reviews = new []{
+                            new Review(),
                         }
                     },
                     new Recipe(){
@@ -80,6 +83,9 @@ namespace Infrastructure.Data.DBInitializer
                             new Step(){ Description = "step2" },
                             new Step(){ Description = "step3" },
                             new Step(){ Description = "step4" },
+                        },
+                        Reviews = new []{
+                            new Review(),
                         }
                     },
                     new Recipe(){
@@ -97,6 +103,9 @@ namespace Infrastructure.Data.DBInitializer
                             new Step(){ Description = "step2" },
                             new Step(){ Description = "step3" },
                             new Step(){ Description = "step4" },
+                        },
+                        Reviews = new []{
+                            new Review(),
                         }
                     },
 
@@ -115,6 +124,9 @@ namespace Infrastructure.Data.DBInitializer
                             new Step(){ Description = "step2" },
                             new Step(){ Description = "step3" },
                             new Step(){ Description = "step4" },
+                        },
+                        Reviews = new []{
+                            new Review(),
                         }
                     },
                     new Recipe(){
@@ -132,6 +144,9 @@ namespace Infrastructure.Data.DBInitializer
                             new Step(){ Description = "step2" },
                             new Step(){ Description = "step3" },
                             new Step(){ Description = "step4" },
+                        },
+                        Reviews = new []{
+                            new Review(),
                         }
                     },
                     new Recipe(){
@@ -149,6 +164,9 @@ namespace Infrastructure.Data.DBInitializer
                             new Step(){ Description = "step2" },
                             new Step(){ Description = "step3" },
                             new Step(){ Description = "step4" },
+                        },
+                        Reviews = new []{
+                            new Review(),
                         }
                     },
                     new Recipe(){
@@ -166,6 +184,9 @@ namespace Infrastructure.Data.DBInitializer
                             new Step(){ Description = "step2" },
                             new Step(){ Description = "step3" },
                             new Step(){ Description = "step4" },
+                        },
+                        Reviews = new []{
+                            new Review(),
                         }
                     },
 
@@ -174,7 +195,7 @@ namespace Infrastructure.Data.DBInitializer
                 await context.Recipes.AddRangeAsync(recipes);
             }
 
-            context.SaveChanges();
+            //context.SaveChanges();
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Core.Interfaces
             bool tracked = false
             );
         void Add(TEntity entity);
+        Task<TEntity> FindByIdAsync(int id);
         void AddRange(IEnumerable<TEntity> entities);
         void DeleteById(int id);
         void Delete(TEntity entityToDelete);

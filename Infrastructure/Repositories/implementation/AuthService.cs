@@ -51,6 +51,7 @@ namespace Infrastructure.Repositories.implementation
             var roles = await _userManager.GetRolesAsync(user);
             return new AuthModel
             {
+                Id = user.Id,
                 Email = user.Email,
                 Expiration = jwtSecToken.ValidTo,
                 IsAuthenticated = true,
@@ -74,6 +75,7 @@ namespace Infrastructure.Repositories.implementation
             var roles = await _userManager.GetRolesAsync(user);
             authModel.IsAuthenticated = true;
             authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecToken);
+            authModel.Id = user.Id;
             authModel.Email = user.Email;
             authModel.UserName = user.UserName;
             authModel.Expiration = jwtSecToken.ValidTo;

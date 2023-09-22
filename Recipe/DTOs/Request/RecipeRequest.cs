@@ -11,6 +11,7 @@ namespace Recipe.DTOs.Request
         public int CategoryId { get; set; }
         public required ICollection<IngredientDto> Ingredients { get; set; }
         public required ICollection<StepDto> Steps { get; set; }
+        //public required ICollection<ReviewDto> Reviews { get; set; }
 
         public string Validata()
         {

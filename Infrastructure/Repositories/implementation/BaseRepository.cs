@@ -38,9 +38,15 @@ namespace Infrastructure.Repositories.implementation
             return await query.ToListAsync();
         }
 
+        public async Task<TEntity> FindByIdAsync(int id)
+        {
+            return await _context.Set<TEntity>().FindAsync(id);
+        }
+
         public virtual void Add(TEntity entity)
         {
-            _dbSet.Add(entity);
+            _context.Set<TEntity>().Add(entity);
+            _context.SaveChanges();
         }
         public void AddRange(IEnumerable<TEntity> entities)
         {

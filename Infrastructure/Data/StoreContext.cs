@@ -31,5 +31,7 @@ namespace Infrastructure.Data
         public DbSet<Ingredient> Ingredients { get; set; }
 
         public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<ShoppingItem> ShoppingItems { get; set; }
     }
 }

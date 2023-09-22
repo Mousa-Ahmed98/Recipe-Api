@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Recipe.DTOs.Request;
 using Recipe.DTOs.Request.Common;
 
 namespace RecipeAPI.DTOs.Response
@@ -11,6 +12,7 @@ namespace RecipeAPI.DTOs.Response
         public CategoryResponse Category { get; set; }
         public List<IngredientDto> Ingredients { get; set; }
         public List<StepDto> Steps { get; set; }
+        public List<ReviewDto> Reviews { get; set; }
 
     }
 }

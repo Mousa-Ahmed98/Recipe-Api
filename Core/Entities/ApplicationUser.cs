@@ -15,6 +15,8 @@ namespace Core.Entities
         public override string UserName { get; set; }
         [Required]
         public override string Email { get; set; }
-        
+        public ICollection<ShoppingItem> ShoppingItems { get; set; }
+
+
     }
 }

@@ -35,7 +35,7 @@ namespace Recipe.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> token(TokenRequestModel model)
+        public async Task<IActionResult> Login(TokenRequestModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
