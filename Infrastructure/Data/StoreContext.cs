@@ -3,11 +3,7 @@ using Infrastructure.Configurations;
 using Inpastructure.Configurations;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Infrastructure.Data
 {
@@ -35,6 +31,7 @@ namespace Infrastructure.Data
         public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<FavouriteRecipes> FavouriteRecipes { get; set; }
         public DbSet<Plan> Plans { get; set; }
+        public DbSet<ShoppingItem> ShoppingList { get; set; }
 
         public DbSet<ApplicationUser> Users { get; set; }
     }
