@@ -47,10 +47,12 @@ namespace Infrastructure.Repositories.Implementation
         public virtual void Add(TEntity entity)
         {
             _dbSet.Add(entity);
+            _context.SaveChanges();
         }
         public void AddRange(IEnumerable<TEntity> entities)
         {
             _context.AddRange(entities);
+            _context.SaveChanges();
         }
 
         public async virtual void DeleteById(int id)
@@ -96,6 +98,11 @@ namespace Infrastructure.Repositories.Implementation
         public void ThrowIfUserIdNull()
         {
             if (_userId == null) { throw new UnAuthorizedException(); }
+        }
+
+        public async Task<TEntity> GetById(int id)
+        {
+            return await _dbSet.FindAsync(id);
         }
     }
 }

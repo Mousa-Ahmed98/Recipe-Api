@@ -17,6 +17,7 @@ namespace Core.Interfaces
         void Add(TEntity entity);
         void AddRange(IEnumerable<TEntity> entities);
         void DeleteById(int id);
+        Task<TEntity> GetById(int id);
         void Delete(TEntity entityToDelete);
         void DeleteRange(IEnumerable<TEntity> entities);
         void Update(TEntity entityToUpdate);

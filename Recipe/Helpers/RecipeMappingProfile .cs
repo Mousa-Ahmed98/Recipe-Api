@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Response;
+﻿using Application.DTOs.Request;
+using Application.DTOs.Response;
 using AutoMapper;
 using Core.Entities;
 using Infrastructure.Common;
@@ -39,6 +40,34 @@ namespace RecipeApi.Helpers
                 opt.MapFrom(src => src.Steps.Select(s => new StepDto { Description = s.Description, Order = s.Order })))
                 .ForMember(dest => dest.Category, opt =>
                     opt.MapFrom(src => src.Category));
+
+
+
+            CreateMap<ShoppingItemDto, ShoppingItem>()
+                .ForMember(dest => dest.Ingredient,
+                opt => opt.MapFrom(src => src.Ingredient))
+                .ForMember(dest => dest.UserId,
+                opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.Quantity,
+                opt => opt.MapFrom(src => src.Quantity))
+                .ForMember(dest => dest.isPurchased,
+                opt => opt.MapFrom(src => src.isPurchased));
+
+
+
+            CreateMap<ShoppingItem, ResponseShoppingItemDto>()
+                .ForMember(dest => dest.Ingredient,
+                opt => opt.MapFrom(src => src.Ingredient))
+                .ForMember(dest => dest.UserId,
+                opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.Quantity,
+                opt => opt.MapFrom(src => src.Quantity))
+                .ForMember(dest => dest.isPurchased,
+                opt => opt.MapFrom(src => src.isPurchased));
+
+
+
+
 
             CreateMap<ApplicationUser, UserResponse>();
 
