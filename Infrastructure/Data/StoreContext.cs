@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,13 +21,9 @@ namespace Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Recipe>()
-                .HasOne(r => r.Category)
-                .WithMany(c => c.Recipes)
-                .HasForeignKey(r => r.CategoryId);
+
             
-            modelBuilder.ApplyConfiguration(new FavouritesConfigurations());
-            modelBuilder.ApplyConfiguration(new PlansConfigurations());
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(FavouritesConfigurations).Assembly);
         }
 
         public DbSet<Recipe> Recipes { get; set; }
@@ -35,6 +32,7 @@ namespace Infrastructure.Data
         public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<FavouriteRecipes> FavouriteRecipes { get; set; }
         public DbSet<Plan> Plans { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         public DbSet<ApplicationUser> Users { get; set; }
     }
