@@ -21,7 +21,7 @@ namespace Infrastructure.Configurations
                 .WithMany()
                 .HasForeignKey(n => n.RecipeId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientNoAction);
 
             builder.ToTable(nameof(StoreContext.Notifications));
         }
