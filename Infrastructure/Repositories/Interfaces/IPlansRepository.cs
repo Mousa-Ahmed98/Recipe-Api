@@ -1,12 +1,11 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
-using Infrastructure.CustomModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.Interfaces
 {
-    public interface IPlansRepository : IBaseRepository<Recipe>
+    public interface IPlansRepository : IBaseRepository<Plan>
     {
         Task<List<Plan>> GetAllPlans();
         Task<bool> PlanOff(int planId);

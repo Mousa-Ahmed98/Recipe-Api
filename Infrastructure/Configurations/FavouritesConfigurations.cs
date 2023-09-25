@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,7 +11,6 @@ namespace Infrastructure.Configurations
         {
             builder.HasKey(fr => new { fr.UserId, fr.RecipeId });
 
-            
             builder.HasOne(fr => fr.User)
                 .WithMany()
                 .HasForeignKey(fr => fr.UserId)
@@ -23,8 +23,7 @@ namespace Infrastructure.Configurations
                 .IsRequired()
                 .OnDelete(DeleteBehavior.ClientNoAction);
 
-
-            builder.ToTable("FavouriteRecipes");
+            builder.ToTable(nameof(StoreContext.FavouriteRecipes));
         }
     }
 }
