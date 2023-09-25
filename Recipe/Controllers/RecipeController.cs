@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Application.UserSession;
+using Azure.Core;
 using RecipeAPI.DTOs.Request.Common;
 
 namespace RecipeApi.Controllers
@@ -35,7 +36,7 @@ namespace RecipeApi.Controllers
             , IBaseRepository<Step> stepRepository
             , IMapper mapper
             , IBaseRepository<Category> categoryRepository
-            , IUserSession session
+            , IUserSession session 
             )
         {
             this.recipeRepository = _recipeRepository;
@@ -46,7 +47,7 @@ namespace RecipeApi.Controllers
             _session = session;
             _recipeRepository.SetUserId(_session.UserId);
         }
-
+        
         [HttpGet]
         [AllowAnonymous]
         public async Task<PaginatedList<RecipeSummary>> GetAll(
@@ -61,15 +62,15 @@ namespace RecipeApi.Controllers
 
             return res;
         }
-
+        
         [HttpGet("{id}")]
-        [AllowAnonymous]
+        [AllowAnonymous] 
         public async Task<ActionResult<RecipeResponse>> GetById(int id)
         {
             var res = await recipeRepository.GetOneById(id);
-
+            
             if (res == null) return NotFound();
-
+            
             return _mapper.Map<RecipeResponse>(res);
         }
 
@@ -86,14 +87,13 @@ namespace RecipeApi.Controllers
                 request.PageSize,
                 filterIngredients
                 );
-
+            
             return res;
         }
 
         [HttpGet("search")]
         public async Task<PaginatedList<RecipeSummary>> GetFilteredRecipes(
-            [FromQuery] string query, 
-            [FromQuery] PaginatedRequest request
+            [FromQuery] string query, [FromQuery] PaginatedRequest request
             )
         {
             var res = await recipeRepository.SearchRecipes(
@@ -103,7 +103,7 @@ namespace RecipeApi.Controllers
             return res;
         }
 
-
+        [Authorize]
         [HttpGet("favourites")]
         public async Task<PaginatedList<RecipeSummary>> Favourites(
             [FromQuery] PaginatedRequest request
@@ -117,19 +117,21 @@ namespace RecipeApi.Controllers
             return res;
         }
 
+        [Authorize]
         [HttpPost("favourites/add/{id}")]
         public async Task<IActionResult> AddToFavourites(
             [FromRoute] int id
             )
         {
             var res = await recipeRepository.AddRecipeToFavourites(id);
-
+            
             if (res == false) return NotFound();
 
             return Ok();
         }
 
         [HttpDelete("favourites/remove/{id}")]
+
         public async Task<IActionResult> RemoveFromFavourites(
             [FromRoute] int id
             )
@@ -141,6 +143,7 @@ namespace RecipeApi.Controllers
             return NoContent();
         }
 
+
         [HttpPost("Add")]
         public async Task<IActionResult> AddRecipe([FromBody] RecipeRequest recipeDto)
 
@@ -149,7 +152,7 @@ namespace RecipeApi.Controllers
             {
                 recipeDto.appendOrdersToSteps();
                 string validationMessage = recipeDto.Validata();
-                if (validationMessage == "")
+                if (validationMessage=="")
                 {
                     var recipe = _mapper.Map<CoreEntities.Recipe>(recipeDto);
                     recipeRepository.Add(recipe);
@@ -181,8 +184,8 @@ namespace RecipeApi.Controllers
             var category = (await categoryRepository
                 .GetAsync(x => x.Id == recipeDto.CategoryId))
                 .FirstOrDefault();
-
-            if (category == null)
+            
+            if(category == null)
             {
                 return BadRequest("Invalid Category");
             }

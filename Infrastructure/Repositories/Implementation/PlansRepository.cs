@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.Implementation
 {
-    public class PlansRepository : BaseRepository<Recipe>, IPlansRepository
+    public class PlansRepository : BaseRepository<Plan>, IPlansRepository
     {
         public PlansRepository(StoreContext context) : base(context)
         {

@@ -6,7 +6,7 @@ namespace Infrastructure.Exceptions
     public class UnAuthorizedException : CustomException
     {
         public UnAuthorizedException()
-        : base("Unauthorized access!")
+            : base("Unauthorized access!")
         {
             StatusCode = HttpStatusCode.Unauthorized;
         }
