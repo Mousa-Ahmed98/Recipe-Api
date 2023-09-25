@@ -82,6 +82,7 @@ options.User.RequireUniqueEmail = true)
 //Register the IBaseRepository and BaseRepository
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IPlansRepository, PlansRepository>();
+builder.Services.AddScoped<INotificationsRepository, NotificationsRepository>();
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IAuthService, AuthService>();
 
@@ -89,17 +90,18 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserSession, Session>();
 
 // Add AutoMapper configuration in Startup.cs or a configuration file
-builder.Services.AddAutoMapper(typeof(RecipeMappingProfile), typeof(StepMappingProfile));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("*",
         builder =>
         {
-            builder.WithOrigins("http://localhost:4200") 
+            builder.WithOrigins("http://localhost:4200", "https://accounts.google.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
+
             .WithExposedHeaders("Content-Disposition");
         });
 

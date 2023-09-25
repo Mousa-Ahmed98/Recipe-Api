@@ -1,15 +1,14 @@
-﻿using Application.UserSession;
-using AutoMapper;
-using Core.Entities;
-using Core.Interfaces;
-using Infrastructure.CustomModels;
-using Infrastructure.Repositories.Implementation;
-using Infrastructure.Repositories.Interfaces;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
+
+using Infrastructure.CustomModels;
+using Infrastructure.Repositories.Interfaces;
+
+using Application.DTOs.Response;
+using Application.UserSession;
 using RecipeAPI.DTOs.Request.Common;
-using System.Threading.Tasks;
 
 namespace RecipeApi.Controllers
 {
@@ -19,18 +18,21 @@ namespace RecipeApi.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IRecipeRepository recipeRepository;
+        private readonly INotificationsRepository NofificationsRepository;
         private readonly IUserSession _session;
         private readonly IMapper _mapper;
 
         public AccountController(
-            IRecipeRepository recipeRepository, 
-            IUserSession session, 
+            IRecipeRepository recipeRepository,
+            INotificationsRepository nofificationsRepository,
+            IUserSession session,
             IMapper mapper
             )
         {
             this.recipeRepository = recipeRepository;
             _session = session;
             _mapper = mapper;
+            NofificationsRepository = nofificationsRepository;
         }
 
 
@@ -48,5 +50,26 @@ namespace RecipeApi.Controllers
             return res;
         }
 
+        [HttpGet("recent-notifications")]
+        public async Task<PaginatedList<NotificationResponse>> GetNotifications(
+            [FromQuery] PaginatedRequest request
+            )
+        {
+            var res = await NofificationsRepository.GetRecentNotifications(
+                _session.UserId,
+                request.CurrentPage,
+                request.PageSize
+                );
+
+            return _mapper.Map<PaginatedList<NotificationResponse>>( res );
+        }
+
+        [HttpPost("read-notifications")]
+        public async Task<IActionResult> ReadNotifications()
+        {
+            await NofificationsRepository.ReadRecentNotifications(_session.UserId);
+
+            return NoContent();
+        }
     }
 }
