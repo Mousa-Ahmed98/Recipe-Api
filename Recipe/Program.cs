@@ -21,6 +21,9 @@ using Infrastructure.Repositories.Interfaces;
 using RecipeApi.Helpers;
 using Application.UserSession;
 using Microsoft.OpenApi.Models;
+using Quartz;
+using Application.Services;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,7 +75,7 @@ builder.Services.AddDbContext<StoreContext>(options
 
 //Register UserManager
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-options.User.RequireUniqueEmail = true)
+    options.User.RequireUniqueEmail = true)
     .AddEntityFrameworkStores<StoreContext>();
 
 //Register the IBaseRepository and BaseRepository
@@ -84,6 +87,30 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserSession, Session>();
+
+// Configure Quartz.NET scheduler
+builder.Services.AddQuartz(q =>
+{
+    // Add the job and specify the job type
+    q.AddJob<PlansReminder>(j => 
+        j.WithIdentity("PlansReminder", "group1")
+        );
+
+    // Configure the trigger for the job
+    q.AddTrigger(t => t
+        .ForJob("PlansReminder", "group1")
+        .StartNow()
+        .WithSimpleSchedule(s => s
+            .WithInterval(TimeSpan.FromDays(1)) // everyday 
+            .RepeatForever()));
+});
+
+// Configure the Quartz.NET hosted service
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true; 
+    options.AwaitApplicationStarted = true;
+});
 
 // Add AutoMapper configuration in Startup.cs or a configuration file
 builder.Services.AddAutoMapper(typeof(MappingProfile));
