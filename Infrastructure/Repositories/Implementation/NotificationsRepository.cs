@@ -19,6 +19,7 @@ namespace Infrastructure.Repositories.Implementation
         {
             var query = _context.Notifications
                 .Where(x => x.UserId.Equals(userId))
+                .Include(x => x.Recipe)
                 .OrderByDescending(x => x.CreatedAt);
             
             return await PaginatedList<Notification>.CreateAsync(query, pageNumber, pageSize);

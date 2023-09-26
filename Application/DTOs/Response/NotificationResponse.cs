@@ -1,4 +1,5 @@
 ﻿using Core.Enum;
+using Infrastructure.CustomModels;
 using System;
 
 namespace Application.DTOs.Response
@@ -7,7 +8,7 @@ namespace Application.DTOs.Response
     {
         public DateTime CreatedAt { get; set; }
         public bool Read { get; set; }
-        public int RecipeId { get; set; }
+        public RecipeSummary Recipe { get; set; }
         public NotificationType Type { get; set; }
     }
 }

@@ -82,6 +82,10 @@ namespace RecipeApi.Helpers
                 .ForMember(dest => dest.Read, opt =>
                     opt.MapFrom(src =>
                         src.ReadAt != null
+                    ))
+                .ForMember(dest => dest.Recipe, opt =>
+                    opt.MapFrom(src =>
+                        src.Recipe
                     ));
 
             CreateMap<ShoppingItemDto, ShoppingItem>()
