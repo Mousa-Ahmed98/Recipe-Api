@@ -3,7 +3,7 @@
     public enum NotificationType
     {
         Comment = 0,
-        Rate = 1,
-        Plan = 2,
+        Rating = 1,
+        PlanReminder = 2,
     }
 }
