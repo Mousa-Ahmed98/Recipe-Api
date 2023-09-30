@@ -21,7 +21,7 @@ namespace Infrastructure.Repositories.Implementation
         public async Task<IEnumerable<Recipe>> GetAllRecipes()
         {
             return await GetAsync(
-                    includeProperties: "Category,Ingredients,Steps"
+                    includeProperties: "Category,Ingredients,Steps,Reviews"
                 );
         }
 
@@ -32,6 +32,7 @@ namespace Infrastructure.Repositories.Implementation
                 .Include(x => x.Category)
                 .Include(x => x.Steps)
                 .Include(x => x.Ingredients)
+                .Include(x => x.Reviews)
                 .Include(x => x.Plans
                     .Where(p => _userId != null && p.UserId == _userId) // TODO :: refine this line later
                     );

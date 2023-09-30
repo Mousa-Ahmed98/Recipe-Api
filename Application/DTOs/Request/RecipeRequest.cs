@@ -10,6 +10,8 @@ namespace RecipeApi.DTOs.Request
         public required string Name { get; set; }
         public string? ImageUrl { get; set; }
         public int CategoryId { get; set; }
+        public string AuthorId { get; set; }
+
         public required ICollection<IngredientDto> Ingredients { get; set; }
         public required ICollection<StepDto> Steps { get; set; }
 
@@ -31,14 +33,13 @@ namespace RecipeApi.DTOs.Request
             }
         }
 
-        public void applyUpdateChanges(Core.Entities.Recipe recipe)
+        public void applyUpdateChanges(Recipe recipe)
         {
             recipe.Name = Name ?? recipe.Name;
             recipe.CategoryId = CategoryId;
             recipe.Image = ImageUrl ?? recipe.Image;
             recipe.Ingredients = getUpdatedIngredients();
             recipe.Steps = getUpdatedSteps();
-            
         }
         private List<Ingredient> getUpdatedIngredients()
         {

@@ -15,6 +15,8 @@ using System.Linq;
 using System;
 using Application.UserSession;
 using RecipeAPI.DTOs.Request.Common;
+using Microsoft.AspNetCore.Identity;
+using Application.DTOs.Request;
 
 namespace RecipeApi.Controllers
 {
@@ -29,6 +31,8 @@ namespace RecipeApi.Controllers
         private readonly IBaseRepository<Step> stepRepository;
         private readonly IMapper _mapper;
         private readonly IUserSession _session;
+        private readonly IBaseRepository<Review> reviewRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public RecipeController(IRecipeRepository _recipeRepository
             , IBaseRepository<Ingredient> ingredientRepository
@@ -36,6 +40,8 @@ namespace RecipeApi.Controllers
             , IMapper mapper
             , IBaseRepository<Category> categoryRepository
             , IUserSession session
+            , IBaseRepository<Review> reviewRepository
+            , UserManager<ApplicationUser> userManager
             )
         {
             this.recipeRepository = _recipeRepository;
@@ -45,6 +51,8 @@ namespace RecipeApi.Controllers
             this.categoryRepository = categoryRepository;
             _session = session;
             _recipeRepository.SetUserId(_session.UserId);
+            this.reviewRepository = reviewRepository;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -70,7 +78,7 @@ namespace RecipeApi.Controllers
 
             if (res == null) return NotFound();
 
-            return _mapper.Map<RecipeResponse>(res);
+            return Ok(_mapper.Map<RecipeResponse>(res));
         }
 
         [HttpGet("filter")]
@@ -145,27 +153,19 @@ namespace RecipeApi.Controllers
         public async Task<IActionResult> AddRecipe([FromBody] RecipeRequest recipeDto)
 
         {
-            try
+            recipeDto.appendOrdersToSteps();
+            string validationMessage = recipeDto.Validata();
+            if (validationMessage == "")
             {
-                recipeDto.appendOrdersToSteps();
-                string validationMessage = recipeDto.Validata();
-                if (validationMessage == "")
-                {
-                    var recipe = _mapper.Map<CoreEntities.Recipe>(recipeDto);
-                    recipeRepository.Add(recipe);
-                    await recipeRepository.SaveChangesAsync();
-
-                    return Ok(recipe);
-                }
-                else
-                {
-                    return BadRequest(validationMessage);
-                }
+                var recipe = _mapper.Map<Recipe>(recipeDto);
+                recipeRepository.Add(recipe);
+                await recipeRepository.SaveChangesAsync();
+                return Ok(recipe);
             }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return BadRequest(validationMessage);
+           
+            
+            
         }
 
         [HttpPut("Update/{id}")]
@@ -189,6 +189,7 @@ namespace RecipeApi.Controllers
             existingRecipe.Category = category;
 
             DeleteIngredientsAndSteps(existingRecipe);
+            
             recipeDto.applyUpdateChanges(existingRecipe);
 
             recipeRepository.Update(existingRecipe);
@@ -203,6 +204,61 @@ namespace RecipeApi.Controllers
             recipeRepository.Delete(recipe);
             DeleteIngredientsAndSteps(recipe);
             return Ok(recipe);
+
+        }
+
+        [HttpPost("AddReview")]
+        public async Task<IActionResult> AddReview(ReviewDto reviewDto)
+        {
+            var recipe = await recipeRepository.GetOneById(reviewDto.RecipeId);
+            if (recipe == null) return NotFound("Recipe does not exist.");
+            var user = await _userManager.FindByIdAsync(reviewDto.AuthorId);
+            if (user == null) return NotFound($"User with id {reviewDto.AuthorId} is not found.");
+            //Implement mapping
+            Review review = new Review
+            {
+                rate = reviewDto.rate,
+                content = reviewDto.content,
+                AuthorId = reviewDto.AuthorId,
+                RecipeId = reviewDto.RecipeId,
+                AuthorName = reviewDto.AuthorName
+            };
+            //recipe.Reviews.Add(review);
+            reviewRepository.Add(review);
+            return Ok(review);
+        }
+
+        [HttpPut("UpdateReview")]
+        public async Task<IActionResult> UpdateReview(UpdateReviewDto updatedReviewDto)
+        {
+            var recipe = await recipeRepository.GetOneById(updatedReviewDto.RecipeId);
+            var user = await _userManager.FindByIdAsync(updatedReviewDto.AuthorId);
+            if (recipe == null) return NotFound("Recipe does not exist.");
+            if (user == null) return NotFound($"User with id {updatedReviewDto.AuthorId} is not found.");
+          
+            Review review = await reviewRepository.GetById(updatedReviewDto.Id);
+            if (review is not null)
+            {
+                review.content = updatedReviewDto.content;
+                review.rate = updatedReviewDto.rate;
+                reviewRepository.Update(review);
+                return Ok(review);
+            }
+            return NotFound("Review not found.");
+        }
+
+        [HttpDelete("DeleteReview/{id}")]
+        public async Task<IActionResult> DeleteReview(int id)
+        {
+
+            Review review = await reviewRepository.GetById(id);
+            if (review is not null)
+            {
+                reviewRepository.Delete(review);
+                return Ok(review);
+            }
+            return NotFound("Review not found.");
+
 
         }
 

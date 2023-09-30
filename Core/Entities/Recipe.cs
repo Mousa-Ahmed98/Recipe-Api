@@ -23,5 +23,6 @@ namespace Core.Entities
         public ICollection<Ingredient> Ingredients { get; set; }
         public  ICollection<Step> Steps { get; set; }
         public  ICollection<Plan> Plans { get; set; }
+        public ICollection<Review> Reviews { get; set; }
     }
 }

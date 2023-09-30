@@ -19,7 +19,7 @@ namespace RecipeApi.Helpers
 
             CreateMap<RecipeRequest, Recipe>()
                 .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.ImageUrl))
-
+                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId))
                 .ForMember(dest => dest.Ingredients, opt =>
                opt.MapFrom(src => src.Ingredients.Select(i => new Ingredient { Description = i.Description })))
                 .ForMember(dest => dest.Steps, opt =>
@@ -35,11 +35,13 @@ namespace RecipeApi.Helpers
                         src => src.Plans.FirstOrDefault()
                         ))
                 .ForMember(dest => dest.Ingredients, opt =>
-                opt.MapFrom(src => src.Ingredients.Select(i => new IngredientDto { Description = i.Description })))
+                opt.MapFrom(src => src.Ingredients.Select(i => new IngredientDto { Description = i.Description, Id = i.Id })))
                 .ForMember(dest => dest.Steps, opt =>
                 opt.MapFrom(src => src.Steps.Select(s => new StepDto { Description = s.Description, Order = s.Order })))
                 .ForMember(dest => dest.Category, opt =>
-                    opt.MapFrom(src => src.Category));
+                    opt.MapFrom(src => src.Category))
+                .ForMember(dest => dest.Reviews, opt =>
+                opt.MapFrom(src => src.Reviews.Select(r => new ReviewDto { rate = r.rate, content = r.content, RecipeId = r.RecipeId, AuthorName = r.AuthorName, AuthorId = r.AuthorId })));
 
 
 
