@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Response;
 using Core.Entities;
+using Infrastructure.Common;
 using RecipeApi.DTOs.Request.Common;
 using System.Collections.Generic;
 
@@ -15,6 +16,7 @@ namespace RecipeAPI.DTOs.Response
         public CategoryResponse Category { get; set; }
         public List<IngredientDto> Ingredients { get; set; }
         public List<StepDto> Steps { get; set; }
+        public UserResponse Author { get; set; }
 
     }
 }
