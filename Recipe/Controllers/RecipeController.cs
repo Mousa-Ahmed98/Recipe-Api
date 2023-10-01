@@ -92,6 +92,7 @@ namespace RecipeApi.Controllers
         }
 
         [HttpGet("search")]
+        [AllowAnonymous]
         public async Task<PaginatedList<RecipeSummary>> GetFilteredRecipes(
             [FromQuery] string query, [FromQuery] PaginatedRequest request
             )
@@ -103,7 +104,6 @@ namespace RecipeApi.Controllers
             return res;
         }
 
-        [Authorize]
         [HttpGet("favourites")]
         public async Task<PaginatedList<RecipeSummary>> Favourites(
             [FromQuery] PaginatedRequest request
@@ -117,7 +117,6 @@ namespace RecipeApi.Controllers
             return res;
         }
 
-        [Authorize]
         [HttpPost("favourites/add/{id}")]
         public async Task<IActionResult> AddToFavourites(
             [FromRoute] int id
@@ -130,8 +129,8 @@ namespace RecipeApi.Controllers
             return Ok();
         }
 
+        
         [HttpDelete("favourites/remove/{id}")]
-
         public async Task<IActionResult> RemoveFromFavourites(
             [FromRoute] int id
             )

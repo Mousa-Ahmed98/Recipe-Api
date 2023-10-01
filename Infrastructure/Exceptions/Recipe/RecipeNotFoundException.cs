@@ -1,6 +1,4 @@
-﻿using Application.Exceptions;
-
-namespace Infrastructure.Exceptions.Recipe
+﻿namespace Infrastructure.Exceptions.Recipe
 {
     public class RecipeNotFoundException : NotFoundException
     {
@@ -9,6 +7,5 @@ namespace Infrastructure.Exceptions.Recipe
         {
 
         }
-
     }
 }
