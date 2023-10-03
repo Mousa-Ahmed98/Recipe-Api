@@ -5,46 +5,44 @@
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class add_favourite_recipes : Migration
+    public partial class Add_ShoppingList_Table : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "FavouriteRecipes",
+                name: "ShoppingList",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RecipeId = table.Column<int>(type: "int", nullable: false)
+                    Ingredient = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    IsPurchased = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FavouriteRecipes", x => new { x.UserId, x.RecipeId });
+                    table.PrimaryKey("PK_ShoppingList", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FavouriteRecipes_AspNetUsers_UserId",
+                        name: "FK_ShoppingList_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_FavouriteRecipes_Recipes_RecipeId",
-                        column: x => x.RecipeId,
-                        principalTable: "Recipes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FavouriteRecipes_RecipeId",
-                table: "FavouriteRecipes",
-                column: "RecipeId");
+                name: "IX_ShoppingList_UserId",
+                table: "ShoppingList",
+                column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "FavouriteRecipes");
+                name: "ShoppingList");
         }
     }
 }

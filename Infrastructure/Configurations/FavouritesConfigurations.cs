@@ -14,14 +14,14 @@ namespace Infrastructure.Configurations
             builder.HasOne(fr => fr.User)
                 .WithMany()
                 .HasForeignKey(fr => fr.UserId)
-                .OnDelete(DeleteBehavior.ClientNoAction)
+                .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 
             builder.HasOne(fr => fr.Recipe)
                 .WithMany()
                 .HasForeignKey(fr => fr.RecipeId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.ClientNoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.ToTable(nameof(StoreContext.FavouriteRecipes));
         }

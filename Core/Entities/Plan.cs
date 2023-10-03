@@ -4,7 +4,7 @@ namespace Core.Entities
 {
     public class Plan
     {
-        public int Id { get; set; }
+        public int Id { get; set; } 
         public DateTime Day { get; set; }
         public int RecipeId { get; set; }
         public Recipe Recipe { get; set; }

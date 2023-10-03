@@ -15,13 +15,13 @@ namespace Inpastructure.Configurations
                 .WithMany()
                 .HasForeignKey(p => p.UserId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.ClientNoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(p => p.Recipe)
                 .WithMany(r => r.Plans)
                 .HasForeignKey(p => p.RecipeId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.ClientNoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.ToTable(nameof(StoreContext.Plans));
         }

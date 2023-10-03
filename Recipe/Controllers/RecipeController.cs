@@ -16,6 +16,9 @@ using System;
 using Application.UserSession;
 using Azure.Core;
 using RecipeAPI.DTOs.Request.Common;
+using Application.Interfaces;
+using Application.Services;
+using Infrastructure.Exceptions;
 
 namespace RecipeApi.Controllers
 {
@@ -24,37 +27,39 @@ namespace RecipeApi.Controllers
     [Route("api/[controller]")]
     public class RecipeController : ControllerBase
     {
-        private readonly IRecipeRepository recipeRepository;
-        private readonly IBaseRepository<Category> categoryRepository;
-        private readonly IBaseRepository<Ingredient> ingredientRepository;
-        private readonly IBaseRepository<Step> stepRepository;
+        private readonly IRecipeRepository _recipeRepository;
+        private readonly IBaseRepository<Category> _categoryRepository;
+        private readonly IBaseRepository<Ingredient> _ingredientRepository;
+        private readonly IBaseRepository<Step> _stepRepository;
         private readonly IMapper _mapper;
         private readonly IUserSession _session;
+        private readonly IImageService _imageService;
 
-        public RecipeController(IRecipeRepository _recipeRepository
+        public RecipeController(IRecipeRepository recipeRepository
             , IBaseRepository<Ingredient> ingredientRepository
             , IBaseRepository<Step> stepRepository
             , IMapper mapper
             , IBaseRepository<Category> categoryRepository
-            , IUserSession session 
-            )
+            , IUserSession session
+            , IImageService imageService)
         {
-            this.recipeRepository = _recipeRepository;
-            this.ingredientRepository = ingredientRepository;
-            this.stepRepository = stepRepository;
+            _recipeRepository = recipeRepository;
+            _ingredientRepository = ingredientRepository;
+            _stepRepository = stepRepository;
             _mapper = mapper;
-            this.categoryRepository = categoryRepository;
+            _categoryRepository = categoryRepository;
             _session = session;
             _recipeRepository.SetUserId(_session.UserId);
+            _imageService = imageService;
         }
-        
+
         [HttpGet]
         [AllowAnonymous]
         public async Task<PaginatedList<RecipeSummary>> GetAll(
             [FromQuery] GetRecipeRequest request
             )
         {
-            var res = await recipeRepository.GetRecipesSummary(
+            var res = await _recipeRepository.GetRecipesSummary(
                 request.CurrentPage,
                 request.PageSize,
                 request.Category
@@ -62,15 +67,15 @@ namespace RecipeApi.Controllers
 
             return res;
         }
-        
+
         [HttpGet("{id}")]
-        [AllowAnonymous] 
+        [AllowAnonymous]
         public async Task<ActionResult<RecipeResponse>> GetById(int id)
         {
-            var res = await recipeRepository.GetOneById(id);
-            
+            var res = await _recipeRepository.GetOneById(id);
+
             if (res == null) return NotFound();
-            
+
             return _mapper.Map<RecipeResponse>(res);
         }
 
@@ -82,12 +87,12 @@ namespace RecipeApi.Controllers
         {
             List<string> filterIngredients = request.Ingredients.Split(',').ToList();
 
-            var res = await recipeRepository.FilterByIngredients(
+            var res = await _recipeRepository.FilterByIngredients(
                 request.CurrentPage,
                 request.PageSize,
                 filterIngredients
                 );
-            
+
             return res;
         }
 
@@ -96,7 +101,7 @@ namespace RecipeApi.Controllers
             [FromQuery] string query, [FromQuery] PaginatedRequest request
             )
         {
-            var res = await recipeRepository.SearchRecipes(
+            var res = await _recipeRepository.SearchRecipes(
                 query, request.CurrentPage, request.PageSize
                 );
 
@@ -109,7 +114,7 @@ namespace RecipeApi.Controllers
             [FromQuery] PaginatedRequest request
             )
         {
-            var res = await recipeRepository.GetFavourites(
+            var res = await _recipeRepository.GetFavourites(
                 request.CurrentPage,
                 request.PageSize
                 );
@@ -123,20 +128,21 @@ namespace RecipeApi.Controllers
             [FromRoute] int id
             )
         {
-            var res = await recipeRepository.AddRecipeToFavourites(id);
-            
+            var res = await _recipeRepository.AddRecipeToFavourites(id);
+
             if (res == false) return NotFound();
 
             return Ok();
         }
 
+        
         [HttpDelete("favourites/remove/{id}")]
 
         public async Task<IActionResult> RemoveFromFavourites(
             [FromRoute] int id
             )
         {
-            var res = await recipeRepository.RemoveRecipeFromFavourites(id);
+            var res = await _recipeRepository.RemoveRecipeFromFavourites(id);
 
             if (res == false) return NotFound();
 
@@ -152,11 +158,17 @@ namespace RecipeApi.Controllers
             {
                 recipeDto.appendOrdersToSteps();
                 string validationMessage = recipeDto.Validata();
-                if (validationMessage=="")
+                if (validationMessage == "")
                 {
-                    var recipe = _mapper.Map<CoreEntities.Recipe>(recipeDto);
-                    recipeRepository.Add(recipe);
-                    await recipeRepository.SaveChangesAsync();
+                    var recipe = _mapper.Map<Recipe>(recipeDto);
+                    recipe.AuthorId = _session.UserId;
+                    if (recipeDto.Image != null)
+                    {
+                        var imageName = await _imageService
+                            .SaveImageAsync(recipeDto.Image, recipeDto.Name);
+                        recipe.ImageName = imageName;
+                    }
+                    await _recipeRepository.CreateNewRecipe(recipe);
 
                     return Ok(recipe);
                 }
@@ -175,17 +187,17 @@ namespace RecipeApi.Controllers
         public async Task<IActionResult> UpdateRecipe(int id, [FromBody] RecipeRequest recipeDto)
         {
 
-            var existingRecipe = recipeRepository.GetOneById(id).Result;
+            var existingRecipe = _recipeRepository.GetOneById(id).Result;
 
             if (existingRecipe == null) return NotFound("Recipe not found");
 
             if (recipeDto == null) return BadRequest("Invalid request data. recipeDto is null.");
 
-            var category = (await categoryRepository
+            var category = (await _categoryRepository
                 .GetAsync(x => x.Id == recipeDto.CategoryId))
                 .FirstOrDefault();
-            
-            if(category == null)
+
+            if (category == null)
             {
                 return BadRequest("Invalid Category");
             }
@@ -194,19 +206,27 @@ namespace RecipeApi.Controllers
             DeleteIngredientsAndSteps(existingRecipe);
             recipeDto.applyUpdateChanges(existingRecipe);
 
-            recipeRepository.Update(existingRecipe);
+            _recipeRepository.Update(existingRecipe);
             return Ok(existingRecipe);
         }
 
         [HttpDelete("Delete/{id}")]
-        public IActionResult DeleteRecipe(int id)
+        public async Task<IActionResult> DeleteRecipe(int id)
         {
-            var recipe = recipeRepository.GetOneById(id).Result;
-            if (recipe == null) return NotFound("Recipe not found");
-            recipeRepository.Delete(recipe);
-            DeleteIngredientsAndSteps(recipe);
-            return Ok(recipe);
+            try
+            {
+                await _recipeRepository.RemoveRecipeById(id);
 
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         private void DeleteIngredientsAndSteps(Recipe existingRecipe)
@@ -214,12 +234,12 @@ namespace RecipeApi.Controllers
             var ings = existingRecipe.Ingredients;
             foreach (var item in ings)
             {
-                ingredientRepository.Delete(item);
+                _ingredientRepository.Delete(item);
             }
             var stps = existingRecipe.Steps;
             foreach (var item in stps)
             {
-                stepRepository.Delete(item);
+                _stepRepository.Delete(item);
             }
         }
     }
