@@ -35,9 +35,8 @@ namespace RecipeApi.Controllers
             NofificationsRepository = nofificationsRepository;
         }
 
-
         [HttpGet("my-recipes")]
-        public async Task<PaginatedList<RecipeSummary>> GetRecipesByUsername(
+        public async Task<PaginatedList<RecipeSummary>> GetRelatedRecipes(
             [FromQuery] PaginatedRequest request
             )
         {

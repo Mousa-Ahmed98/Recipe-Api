@@ -1,5 +1,4 @@
-﻿using Application.Exceptions;
-using System.Net;
+﻿using System.Net;
 
 namespace Infrastructure.Exceptions
 {
