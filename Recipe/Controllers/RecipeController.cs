@@ -33,26 +33,24 @@ namespace RecipeApi.Controllers
         private readonly IBaseRepository<Step> _stepRepository;
         private readonly IMapper _mapper;
         private readonly IUserSession _session;
-        private readonly IImageService _imageService;
 
-        public RecipeController(IRecipeRepository recipeRepository
-            , IBaseRepository<Ingredient> ingredientRepository
-            , IBaseRepository<Step> stepRepository
-            , IMapper mapper
-            , IBaseRepository<Category> categoryRepository
-            , IUserSession session
-            , IImageService imageService)
+        public RecipeController(IRecipeRepository recipeRepository,
+            IBaseRepository<Ingredient> ingredientRepository,
+            IBaseRepository<Step> stepRepository,
+            IBaseRepository<Category> categoryRepository,
+            IMapper mapper,
+            IUserSession session
+            )
         {
             _recipeRepository = recipeRepository;
+            _categoryRepository = categoryRepository;
             _ingredientRepository = ingredientRepository;
             _stepRepository = stepRepository;
             _mapper = mapper;
-            _categoryRepository = categoryRepository;
             _session = session;
             _recipeRepository.SetUserId(_session.UserId);
-            _imageService = imageService;
         }
-
+        
         [HttpGet]
         [AllowAnonymous]
         public async Task<PaginatedList<RecipeSummary>> GetAll(
@@ -67,15 +65,15 @@ namespace RecipeApi.Controllers
 
             return res;
         }
-
+        
         [HttpGet("{id}")]
-        [AllowAnonymous]
+        [AllowAnonymous] 
         public async Task<ActionResult<RecipeResponse>> GetById(int id)
         {
             var res = await _recipeRepository.GetOneById(id);
-
+            
             if (res == null) return NotFound();
-
+            
             return _mapper.Map<RecipeResponse>(res);
         }
 
@@ -92,7 +90,7 @@ namespace RecipeApi.Controllers
                 request.PageSize,
                 filterIngredients
                 );
-
+            
             return res;
         }
 
@@ -128,7 +126,7 @@ namespace RecipeApi.Controllers
             )
         {
             var res = await _recipeRepository.AddRecipeToFavourites(id);
-
+            
             if (res == false) return NotFound();
 
             return Ok();
@@ -156,17 +154,11 @@ namespace RecipeApi.Controllers
             {
                 recipeDto.appendOrdersToSteps();
                 string validationMessage = recipeDto.Validata();
-                if (validationMessage == "")
+                if (validationMessage=="")
                 {
-                    var recipe = _mapper.Map<Recipe>(recipeDto);
-                    recipe.AuthorId = _session.UserId;
-                    if (recipeDto.Image != null)
-                    {
-                        var imageName = await _imageService
-                            .SaveImageAsync(recipeDto.Image, recipeDto.Name);
-                        recipe.ImageName = imageName;
-                    }
-                    await _recipeRepository.CreateNewRecipe(recipe);
+                    var recipe = _mapper.Map<CoreEntities.Recipe>(recipeDto);
+                    _recipeRepository.Add(recipe);
+                    await _recipeRepository.SaveChangesAsync();
 
                     return Ok(recipe);
                 }
@@ -194,8 +186,8 @@ namespace RecipeApi.Controllers
             var category = (await _categoryRepository
                 .GetAsync(x => x.Id == recipeDto.CategoryId))
                 .FirstOrDefault();
-
-            if (category == null)
+            
+            if(category == null)
             {
                 return BadRequest("Invalid Category");
             }
@@ -209,22 +201,14 @@ namespace RecipeApi.Controllers
         }
 
         [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> DeleteRecipe(int id)
+        public IActionResult DeleteRecipe(int id)
         {
-            try
-            {
-                await _recipeRepository.RemoveRecipeById(id);
+            var recipe = _recipeRepository.GetOneById(id).Result;
+            if (recipe == null) return NotFound("Recipe not found");
+            _recipeRepository.Delete(recipe);
+            DeleteIngredientsAndSteps(recipe);
+            return Ok(recipe);
 
-                return NoContent();
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
         }
 
         private void DeleteIngredientsAndSteps(Recipe existingRecipe)

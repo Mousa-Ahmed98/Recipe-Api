@@ -36,11 +36,12 @@ namespace Infrastructure.Repositories.Implementation
                 .Include(x => x.Author);
 
             var res = await query.FirstOrDefaultAsync();
-            
-            if (res == null) {
+
+            if (res == null)
+            {
                 throw new RecipeNotFoundException(id);
             }
-            
+
             res.InFavourites = _userId != null && _context.FavouriteRecipes
                 .Any(f => f.RecipeId == res.Id && f.UserId == _userId);
 
@@ -244,6 +245,7 @@ namespace Infrastructure.Repositories.Implementation
                 );
             }
         }
+
         public async Task RemoveRecipeById(int recipeId)
         {
             var recipe = await _context.Recipes
