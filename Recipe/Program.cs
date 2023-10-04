@@ -24,6 +24,7 @@ using Microsoft.OpenApi.Models;
 using Quartz;
 using Application.Services;
 using System;
+using Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,7 +84,9 @@ builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IPlansRepository, PlansRepository>();
 builder.Services.AddScoped<INotificationsRepository, NotificationsRepository>();
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserSession, Session>();
@@ -92,7 +95,7 @@ builder.Services.AddScoped<IUserSession, Session>();
 builder.Services.AddQuartz(q =>
 {
     // Add the job and specify the job type
-    q.AddJob<PlansReminder>(j => 
+    q.AddJob<PlansReminder>(j =>
         j.WithIdentity("PlansReminder", "group1")
         );
 
@@ -108,7 +111,7 @@ builder.Services.AddQuartz(q =>
 // Configure the Quartz.NET hosted service
 builder.Services.AddQuartzHostedService(options =>
 {
-    options.WaitForJobsToComplete = true; 
+    options.WaitForJobsToComplete = true;
     options.AwaitApplicationStarted = true;
 });
 
@@ -126,7 +129,6 @@ builder.Services.AddCors(options =>
             .AllowCredentials()
             .WithExposedHeaders("Content-Disposition");
         });
-
 });
 
 //Configuring Jwt 
