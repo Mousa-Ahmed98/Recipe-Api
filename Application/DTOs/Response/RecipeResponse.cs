@@ -16,6 +16,7 @@ namespace RecipeAPI.DTOs.Response
         public CategoryResponse Category { get; set; }
         public List<IngredientDto> Ingredients { get; set; }
         public List<StepDto> Steps { get; set; }
+        public UserResponse Author { get; set; }
 
     }
 }

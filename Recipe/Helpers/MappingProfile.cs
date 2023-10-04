@@ -51,6 +51,10 @@ namespace RecipeApi.Helpers
                 .ForMember(dest => dest.Category, opt =>
                     opt.MapFrom(src =>
                         src.Category
+                    ))
+                .ForMember(dest => dest.Author, opt =>
+                    opt.MapFrom(src =>
+                        src.Author
                     ));
 
             CreateMap<Category, CategoryResponse>();

@@ -17,6 +17,7 @@ namespace Infrastructure.Data
             
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(RecipeConfigurations).Assembly);
         }
+        
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Step> Steps { get; set; }

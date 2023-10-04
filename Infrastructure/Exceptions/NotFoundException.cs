@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Net;
 
-namespace Application.Exceptions
+namespace Infrastructure.Exceptions
 {
-    public abstract class NotFoundException : CustomException
+    public class NotFoundException : CustomException
     {
-        protected NotFoundException(string message)
+        public NotFoundException(string message)
         : base(message)
         {
             StatusCode = HttpStatusCode.NotFound;

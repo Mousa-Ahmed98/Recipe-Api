@@ -1,6 +1,4 @@
-﻿using Application.Exceptions;
-
-namespace Infrastructure.Exceptions.Plan
+﻿namespace Infrastructure.Exceptions.Plan
 {
     public class PlanNotFoundException : NotFoundException
     {
