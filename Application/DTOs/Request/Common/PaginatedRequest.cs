@@ -1,4 +1,4 @@
-﻿namespace RecipeAPI.DTOs.Request.Common
+﻿namespace Application.DTOs.Request.Common
 {
     public record PaginatedRequest
     {

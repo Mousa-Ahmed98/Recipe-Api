@@ -8,7 +8,7 @@ using Infrastructure.Repositories.Interfaces;
 
 using Application.DTOs.Response;
 using Application.UserSession;
-using RecipeAPI.DTOs.Request.Common;
+using Application.DTOs.Request.Common;
 
 namespace RecipeApi.Controllers
 {

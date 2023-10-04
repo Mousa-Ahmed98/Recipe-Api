@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Infrastructure.Data;
 using Core.Entities;
 using Quartz;
+using Core.Enums;
 
 namespace Application.Services
 {
@@ -36,7 +37,7 @@ namespace Application.Services
                         {
                             UserId = plan.UserId,
                             RecipeId = plan.RecipeId,
-                            Type = Core.Enum.NotificationType.PlanReminder,
+                            Type = NotificationType.PlanReminder,
                         });
                     }
 

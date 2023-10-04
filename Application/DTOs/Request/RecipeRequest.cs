@@ -1,14 +1,14 @@
-﻿using Core.Entities;
+﻿using Application.DTOs.Request.Common;
+using Core.Entities;
 using Microsoft.IdentityModel.Tokens;
-using RecipeApi.DTOs.Request.Common;
 using System.Collections.Generic;
 
-namespace RecipeApi.DTOs.Request
+namespace Application.DTOs.Request
 {
     public record RecipeRequest
     {
         public required string Name { get; set; }
-        public string? ImageUrl { get; set; }
+        public string? ImageData { get; set; }
         public int CategoryId { get; set; }
         public required ICollection<IngredientDto> Ingredients { get; set; }
         public required ICollection<StepDto> Steps { get; set; }
@@ -35,7 +35,7 @@ namespace RecipeApi.DTOs.Request
         {
             recipe.Name = Name ?? recipe.Name;
             recipe.CategoryId = CategoryId;
-            recipe.Image = ImageUrl ?? recipe.Image;
+            recipe.ImageName = ImageData ?? recipe.ImageName;
             recipe.Ingredients = getUpdatedIngredients();
             recipe.Steps = getUpdatedSteps();
             

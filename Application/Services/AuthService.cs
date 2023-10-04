@@ -1,6 +1,6 @@
-﻿using Core;
+﻿using Application.Interfaces;
+using Core;
 using Core.Entities;
-using Core.Interfaces;
 using Infrastructure.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;

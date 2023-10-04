@@ -1,10 +1,8 @@
-﻿using Application.DTOs.Response;
-using Core.Entities;
+﻿using Application.DTOs.Request.Common;
 using Infrastructure.Common;
-using RecipeApi.DTOs.Request.Common;
 using System.Collections.Generic;
 
-namespace RecipeAPI.DTOs.Response
+namespace Application.DTOs.Response
 {
     public record RecipeResponse
     {
