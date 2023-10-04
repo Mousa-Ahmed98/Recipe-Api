@@ -27,26 +27,26 @@ namespace RecipeApi.Controllers
     [Route("api/[controller]")]
     public class RecipeController : ControllerBase
     {
-        private readonly IRecipeRepository recipeRepository;
-        private readonly IBaseRepository<Category> categoryRepository;
-        private readonly IBaseRepository<Ingredient> ingredientRepository;
-        private readonly IBaseRepository<Step> stepRepository;
+        private readonly IRecipeRepository _recipeRepository;
+        private readonly IBaseRepository<Category> _categoryRepository;
+        private readonly IBaseRepository<Ingredient> _ingredientRepository;
+        private readonly IBaseRepository<Step> _stepRepository;
         private readonly IMapper _mapper;
         private readonly IUserSession _session;
 
-        public RecipeController(IRecipeRepository _recipeRepository
-            , IBaseRepository<Ingredient> ingredientRepository
-            , IBaseRepository<Step> stepRepository
-            , IMapper mapper
-            , IBaseRepository<Category> categoryRepository
-            , IUserSession session 
+        public RecipeController(IRecipeRepository recipeRepository,
+            IBaseRepository<Ingredient> ingredientRepository,
+            IBaseRepository<Step> stepRepository,
+            IBaseRepository<Category> categoryRepository,
+            IMapper mapper,
+            IUserSession session
             )
         {
-            this.recipeRepository = _recipeRepository;
-            this.ingredientRepository = ingredientRepository;
-            this.stepRepository = stepRepository;
+            _recipeRepository = recipeRepository;
+            _categoryRepository = categoryRepository;
+            _ingredientRepository = ingredientRepository;
+            _stepRepository = stepRepository;
             _mapper = mapper;
-            this.categoryRepository = categoryRepository;
             _session = session;
             _recipeRepository.SetUserId(_session.UserId);
         }
@@ -57,7 +57,7 @@ namespace RecipeApi.Controllers
             [FromQuery] GetRecipeRequest request
             )
         {
-            var res = await recipeRepository.GetRecipesSummary(
+            var res = await _recipeRepository.GetRecipesSummary(
                 request.CurrentPage,
                 request.PageSize,
                 request.Category
@@ -70,7 +70,7 @@ namespace RecipeApi.Controllers
         [AllowAnonymous] 
         public async Task<ActionResult<RecipeResponse>> GetById(int id)
         {
-            var res = await recipeRepository.GetOneById(id);
+            var res = await _recipeRepository.GetOneById(id);
             
             if (res == null) return NotFound();
             
@@ -85,7 +85,7 @@ namespace RecipeApi.Controllers
         {
             List<string> filterIngredients = request.Ingredients.Split(',').ToList();
 
-            var res = await recipeRepository.FilterByIngredients(
+            var res = await _recipeRepository.FilterByIngredients(
                 request.CurrentPage,
                 request.PageSize,
                 filterIngredients
@@ -100,7 +100,7 @@ namespace RecipeApi.Controllers
             [FromQuery] string query, [FromQuery] PaginatedRequest request
             )
         {
-            var res = await recipeRepository.SearchRecipes(
+            var res = await _recipeRepository.SearchRecipes(
                 query, request.CurrentPage, request.PageSize
                 );
 
@@ -112,7 +112,7 @@ namespace RecipeApi.Controllers
             [FromQuery] PaginatedRequest request
             )
         {
-            var res = await recipeRepository.GetFavourites(
+            var res = await _recipeRepository.GetFavourites(
                 request.CurrentPage,
                 request.PageSize
                 );
@@ -125,7 +125,7 @@ namespace RecipeApi.Controllers
             [FromRoute] int id
             )
         {
-            var res = await recipeRepository.AddRecipeToFavourites(id);
+            var res = await _recipeRepository.AddRecipeToFavourites(id);
             
             if (res == false) return NotFound();
 
@@ -138,7 +138,7 @@ namespace RecipeApi.Controllers
             [FromRoute] int id
             )
         {
-            var res = await recipeRepository.RemoveRecipeFromFavourites(id);
+            var res = await _recipeRepository.RemoveRecipeFromFavourites(id);
 
             if (res == false) return NotFound();
 
@@ -157,8 +157,8 @@ namespace RecipeApi.Controllers
                 if (validationMessage=="")
                 {
                     var recipe = _mapper.Map<CoreEntities.Recipe>(recipeDto);
-                    recipeRepository.Add(recipe);
-                    await recipeRepository.SaveChangesAsync();
+                    _recipeRepository.Add(recipe);
+                    await _recipeRepository.SaveChangesAsync();
 
                     return Ok(recipe);
                 }
@@ -177,13 +177,13 @@ namespace RecipeApi.Controllers
         public async Task<IActionResult> UpdateRecipe(int id, [FromBody] RecipeRequest recipeDto)
         {
 
-            var existingRecipe = recipeRepository.GetOneById(id).Result;
+            var existingRecipe = _recipeRepository.GetOneById(id).Result;
 
             if (existingRecipe == null) return NotFound("Recipe not found");
 
             if (recipeDto == null) return BadRequest("Invalid request data. recipeDto is null.");
 
-            var category = (await categoryRepository
+            var category = (await _categoryRepository
                 .GetAsync(x => x.Id == recipeDto.CategoryId))
                 .FirstOrDefault();
             
@@ -196,16 +196,16 @@ namespace RecipeApi.Controllers
             DeleteIngredientsAndSteps(existingRecipe);
             recipeDto.applyUpdateChanges(existingRecipe);
 
-            recipeRepository.Update(existingRecipe);
+            _recipeRepository.Update(existingRecipe);
             return Ok(existingRecipe);
         }
 
         [HttpDelete("Delete/{id}")]
         public IActionResult DeleteRecipe(int id)
         {
-            var recipe = recipeRepository.GetOneById(id).Result;
+            var recipe = _recipeRepository.GetOneById(id).Result;
             if (recipe == null) return NotFound("Recipe not found");
-            recipeRepository.Delete(recipe);
+            _recipeRepository.Delete(recipe);
             DeleteIngredientsAndSteps(recipe);
             return Ok(recipe);
 
@@ -216,12 +216,12 @@ namespace RecipeApi.Controllers
             var ings = existingRecipe.Ingredients;
             foreach (var item in ings)
             {
-                ingredientRepository.Delete(item);
+                _ingredientRepository.Delete(item);
             }
             var stps = existingRecipe.Steps;
             foreach (var item in stps)
             {
-                stepRepository.Delete(item);
+                _stepRepository.Delete(item);
             }
         }
     }
