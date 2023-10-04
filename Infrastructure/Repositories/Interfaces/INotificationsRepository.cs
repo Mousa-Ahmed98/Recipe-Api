@@ -1,5 +1,5 @@
 ﻿using Core.Entities;
-using Core.Enum;
+using Core.Enums;
 using Core.Interfaces;
 using Infrastructure.CustomModels;
 using System.Threading.Tasks;

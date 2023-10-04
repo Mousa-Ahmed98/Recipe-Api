@@ -1,5 +1,5 @@
 ﻿using Core.Entities;
-using Infrastructure.Configurations;
+using Inpastructure.Configurations;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,9 +15,9 @@ namespace Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
             
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(FavouritesConfigurations).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(RecipeConfigurations).Assembly);
         }
-
+        
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Step> Steps { get; set; }
@@ -27,6 +27,5 @@ namespace Infrastructure.Data
         public DbSet<ShoppingItem> ShoppingList { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Follow> Follows { get; set; }
-        public DbSet<ApplicationUser> Users { get; set; }
     }
 }

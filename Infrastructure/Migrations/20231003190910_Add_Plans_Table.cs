@@ -6,11 +6,18 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class add_plan_entity : Migration
+    public partial class Add_Plans_Table : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<string>(
+                name: "AuthorId",
+                table: "Recipes",
+                type: "nvarchar(450)",
+                nullable: false,
+                defaultValue: "");
+
             migrationBuilder.CreateTable(
                 name: "Plans",
                 columns: table => new
@@ -39,6 +46,11 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Recipes_AuthorId",
+                table: "Recipes",
+                column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Plans_RecipeId",
                 table: "Plans",
                 column: "RecipeId");
@@ -47,13 +59,33 @@ namespace Infrastructure.Migrations
                 name: "IX_Plans_UserId",
                 table: "Plans",
                 column: "UserId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Recipes_AspNetUsers_AuthorId",
+                table: "Recipes",
+                column: "AuthorId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Recipes_AspNetUsers_AuthorId",
+                table: "Recipes");
+
             migrationBuilder.DropTable(
                 name: "Plans");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Recipes_AuthorId",
+                table: "Recipes");
+
+            migrationBuilder.DropColumn(
+                name: "AuthorId",
+                table: "Recipes");
         }
     }
 }

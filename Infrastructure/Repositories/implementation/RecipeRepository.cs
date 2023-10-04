@@ -16,7 +16,7 @@ namespace Infrastructure.Repositories.Implementation
         public RecipeRepository(StoreContext context) : base(context)
         {
         }
-        
+
         public async Task<IEnumerable<Recipe>> GetAllRecipes()
         {
             return await GetAsync(
@@ -43,7 +43,7 @@ namespace Infrastructure.Repositories.Implementation
             
             res.InFavourites = _userId != null && _context.FavouriteRecipes
                 .Any(f => f.RecipeId == res.Id && f.UserId == _userId);
-            
+
             return res;
         }
 
@@ -58,8 +58,8 @@ namespace Infrastructure.Repositories.Implementation
                 var cat = await _context.Categories
                     .Where(c => c.Name == category)
                     .FirstOrDefaultAsync();
-                
-                if(cat!= null)
+
+                if (cat != null)
                 {
                     query = query.Where(recipe => recipe.CategoryId == cat.Id);
                 }
@@ -71,7 +71,7 @@ namespace Infrastructure.Repositories.Implementation
             {
                 Id = recipe.Id,
                 Name = recipe.Name,
-                ImageUrl = recipe.Image,
+                ImageName = recipe.ImageName,
                 InFavourites = _userId != null && _context.FavouriteRecipes
                     .Any(f => f.RecipeId == recipe.Id && f.UserId == _userId)
             });
@@ -97,7 +97,7 @@ namespace Infrastructure.Repositories.Implementation
                 var filteredQuery = query.Where(x => x.Description.Contains(ing));
                 filteredIngredients.AddRange(await filteredQuery.ToListAsync());
             }
-            
+
             var groupedIngredients = filteredIngredients
                 .Distinct()
                 .GroupBy(x => x.RecipeId);
@@ -114,7 +114,7 @@ namespace Infrastructure.Repositories.Implementation
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    ImageUrl = x.Image,
+                    ImageName = x.ImageName,
                     InFavourites = _userId != null && _context.FavouriteRecipes
                         .Any(f => f.RecipeId == x.Id && f.UserId == _userId)
                 });
@@ -140,7 +140,7 @@ namespace Infrastructure.Repositories.Implementation
             });
 
             await _context.SaveChangesAsync();
-            
+
             return true;
         }
 
@@ -148,10 +148,10 @@ namespace Infrastructure.Repositories.Implementation
         {
             var recipes = _context.Recipes
                 .Where(x => x.Name.Contains(query))
-                .Select(x=> new RecipeSummary
+                .Select(x => new RecipeSummary
                 {
                     Id = x.Id,
-                    ImageUrl = x.Image,
+                    ImageName = x.ImageName,
                     Name = x.Name,
                 });
 
@@ -185,7 +185,7 @@ namespace Infrastructure.Repositories.Implementation
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    ImageUrl = r.Image,
+                    ImageName = r.ImageName,
                     InFavourites = true
                 });
 
@@ -194,9 +194,9 @@ namespace Infrastructure.Repositories.Implementation
 
         public async Task<PaginatedList<RecipeSummary>> GetRecipesByUsername(string username, int currentPage, int pageSize)
         {
-            var user = _context.Users.Where(x => x.UserName== username).FirstOrDefault();
-            
-            if(user == null)
+            var user = _context.Users.Where(x => x.UserName == username).FirstOrDefault();
+
+            if (user == null)
             {
                 throw new UserNotFoundException(username);
             }
@@ -207,10 +207,56 @@ namespace Infrastructure.Repositories.Implementation
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    ImageUrl = r.Image,
+                    ImageName = r.ImageName,
                 });
-            
+
             return await PaginatedList<RecipeSummary>.CreateAsync(query, currentPage, pageSize);
+        }
+
+        public async Task CreateNewRecipe(Recipe recipe)
+        {
+            _context.Recipes.Add(recipe);
+            await _context.SaveChangesAsync(); // TODO :: make it just one call
+                                               // (I have to save for fk constraint)
+            await NotifyFollowers(recipe.Id, recipe.AuthorId);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task NotifyFollowers(int recipeId, string authorId)
+        {
+            var followers = await _context.Follows
+                .Where(x => x.FolloweeId == authorId)
+                .Join(_context.Users,
+                    f => f.FollowerId,
+                    u => u.Id,
+                    (f, u) => u
+                ).ToListAsync();
+
+            foreach (var f in followers)
+            {
+                await _context.Notifications.AddAsync(
+                    new Notification()
+                    {
+                        RecipeId = recipeId,
+                        UserId = f.Id,
+                        Type = Core.Enums.NotificationType.NewPost,
+                    }
+                );
+            }
+        }
+        public async Task RemoveRecipeById(int recipeId)
+        {
+            var recipe = await _context.Recipes
+                .FirstOrDefaultAsync(x => x.Id == recipeId);
+
+            if (recipe == null)
+            {
+                throw new RecipeNotFoundException(recipeId);
+            }
+
+            _context.Recipes.Remove(recipe);
+
+            await _context.SaveChangesAsync();
         }
 
     }

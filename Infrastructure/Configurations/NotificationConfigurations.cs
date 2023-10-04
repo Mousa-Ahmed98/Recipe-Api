@@ -10,7 +10,7 @@ namespace Infrastructure.Configurations
         public void Configure(EntityTypeBuilder<Notification> builder)
         {
             builder.HasKey(n => n.Id);
-            
+
             builder.HasOne(n => n.User)
                 .WithMany()
                 .HasForeignKey(n => n.UserId)
@@ -21,7 +21,7 @@ namespace Infrastructure.Configurations
                 .WithMany()
                 .HasForeignKey(n => n.RecipeId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.ClientNoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.ToTable(nameof(StoreContext.Notifications));
         }

@@ -2,7 +2,6 @@
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection.Emit;
 
 namespace Infrastructure.Configurations
 {
@@ -15,12 +14,12 @@ namespace Infrastructure.Configurations
             builder.HasOne(f => f.Follower)
                     .WithMany()
                     .HasForeignKey(f => f.FollowerId).IsRequired()
-                    .OnDelete(DeleteBehavior.NoAction);
+                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(f => f.Followee)
                     .WithMany()
                     .HasForeignKey(f => f.FolloweeId).IsRequired()
-                    .OnDelete(DeleteBehavior.NoAction);
+                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.ToTable(nameof(StoreContext.Follows));
         }

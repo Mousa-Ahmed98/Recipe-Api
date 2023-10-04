@@ -71,7 +71,8 @@ namespace Infrastructure.Data.DBInitializer
 
 
             #region SeedUsers
-            if (!context.Users.Any()) { 
+            if (!context.Users.Any())
+            {
 
                 var user1 =
                     new ApplicationUser
@@ -109,16 +110,16 @@ namespace Infrastructure.Data.DBInitializer
             {
                 var mainCategory = context.Categories.FirstOrDefault();
                 var drinksCategory = context.Categories.FirstOrDefault(x => x.Name == "Drinks");
-                
+
                 var user = await context.Users.Where(x => x.UserName == "john123").FirstOrDefaultAsync();
-                if(user == null ) { throw new ArgumentNullException(nameof(user)); }
-                
+                if (user == null) { throw new ArgumentNullException(nameof(user)); }
+
                 var recipes = new[]
                 {
                     new Recipe(){
                         Name = "Frito Pie",
                         CategoryId = mainCategory.Id,
-                        Image = "Frito-Pie.jpg",
+                        ImageName = "Frito-Pie.jpg",
                         Author = user,
                         Ingredients = new []{
                             new Ingredient(){ Description = "1/2 pound ground beef" },
@@ -134,13 +135,13 @@ namespace Infrastructure.Data.DBInitializer
                             new Step(){ Description = "Heat a large skillet over medium-high heat. Cook and stir ground beef in the hot skillet until browned and crumbly, 5 to 7 minutes. Drain and discard grease. Stir in water, tomato paste, chili powder, cumin, onion powder, and garlic powder. Stir in beans; cook until heated through, about 3 minutes. " },
                             new Step(){ Description = "Divide corn chips into 4 bowls, top with the chili mix, then sprinkle with diced onions, jalapeño slices, and Cheddar cheese. Serve immediately. " },
                         }
-                        
+
                     },
                     new Recipe(){
                         Name = "Carrot Cake Cupcakes with Cream Cheese Frosting",
                         CategoryId = mainCategory.Id,
                         Author = user,
-                        Image = "Carrot-Cake-Cupcakes.jpg",
+                        ImageName = "Carrot-Cake-Cupcakes.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "2 cups all-purpose flour" },
                             new Ingredient(){ Description = "1 tablespoon ground cinnamon" },
@@ -171,7 +172,7 @@ namespace Infrastructure.Data.DBInitializer
                         Name = "French Toast Pancakes",
                         CategoryId = mainCategory.Id,
                         Author = user,
-                        Image = "french-toast-pancakes.jpg",
+                        ImageName = "french-toast-pancakes.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "2 teaspoons vegetable oil" },
                             new Ingredient(){ Description = "1 cup all-purpose flour" },
@@ -194,7 +195,7 @@ namespace Infrastructure.Data.DBInitializer
                     new Recipe(){
                         Name = "Cajun Shrimp and Sausage Pasta Bake",
                         CategoryId = mainCategory.Id,
-                        Image = "Cajun-Shrimp-and-Sausage-Pasta-Bake.jpg",
+                        ImageName = "Cajun-Shrimp-and-Sausage-Pasta-Bake.jpg",
                         Author = user,
                         Ingredients = new []{
                             new Ingredient(){ Description = "10 ounces penne pasta" },
@@ -220,7 +221,7 @@ namespace Infrastructure.Data.DBInitializer
                         Name = "Steak and Potato Foil Packets",
                         CategoryId = mainCategory.Id,
                         Author = user,
-                        Image = "Steak-and-Potatoes-Foil-Packs.jpg",
+                        ImageName = "Steak-and-Potatoes-Foil-Packs.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "1 pound small Yukon Gold potatoes, halved" },
                             new Ingredient(){ Description = "1 1/2 pounds sirloin steak, cut into bite-sized strips" },
@@ -244,7 +245,7 @@ namespace Infrastructure.Data.DBInitializer
                         Name = "Shrimp and Pepper Stir-Fry",
                         CategoryId = mainCategory.Id,
                         Author = user,
-                        Image = "Shrimp-and-Pepper-Stir-Fry.jpg",
+                        ImageName = "Shrimp-and-Pepper-Stir-Fry.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "1/2 cup chicken broth" },
                             new Ingredient(){ Description = "1/4 cup low-sodium soy sauce" },
@@ -264,7 +265,7 @@ namespace Infrastructure.Data.DBInitializer
                         Name = "Bibimbap (Korean Rice With Mixed Vegetables)",
                         CategoryId = mainCategory.Id,
                         Author = user,
-                        Image = "KoreanRiceWithMixedVegtables.jpg",
+                        ImageName = "KoreanRiceWithMixedVegtables.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "1 English cucumber, cut into matchsticks" },
                             new Ingredient(){ Description = "¼ cup gochujang (Korean hot pepper paste) (Optional)" },
@@ -296,7 +297,7 @@ namespace Infrastructure.Data.DBInitializer
                         Name = "Fried Chicken",
                         CategoryId = mainCategory.Id,
                         Author = user,
-                        Image = "fired-chicken.jpg",
+                        ImageName = "fired-chicken.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "30 saltine crackers" },
                             new Ingredient(){ Description = "2 tablespoons all-purpose flour" },
@@ -318,7 +319,7 @@ namespace Infrastructure.Data.DBInitializer
                         Name = "Fast Chicken Soup Base",
                         CategoryId = mainCategory.Id,
                         Author = user,
-                        Image = "Fast-Chicken-Soup-Base.jpg",
+                        ImageName = "Fast-Chicken-Soup-Base.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "2 quarts chicken broth" },
                             new Ingredient(){ Description = "1 quart water" },
@@ -339,7 +340,7 @@ namespace Infrastructure.Data.DBInitializer
                         Name = "Baked Beer Can Chicken",
                         CategoryId = mainCategory.Id,
                         Author = user,
-                        Image = "Baked-Can-Chicken.png",
+                        ImageName = "Baked-Can-Chicken.png",
                         Ingredients = new []{
                             new Ingredient(){ Description = "¼ cup garlic powder" },
                             new Ingredient(){ Description = "2 tablespoons seasoned salt" },
@@ -366,7 +367,7 @@ namespace Infrastructure.Data.DBInitializer
                         Name = "Buttermilk Pancakes",
                         CategoryId = mainCategory.Id,
                         Author = user,
-                        Image = "ButtermilkPancakes.jpg",
+                        ImageName = "ButtermilkPancakes.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "3 cups all-purpose flour" },
                             new Ingredient(){ Description = "3 tablespoons white sugar" },
@@ -390,7 +391,7 @@ namespace Infrastructure.Data.DBInitializer
                         Name = "Chocolate Banana Milkshake",
                         CategoryId = drinksCategory.Id,
                         Author = user,
-                        Image = "Chocolate-Banana-Milkshake.jpg",
+                        ImageName = "Chocolate-Banana-Milkshake.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "1 banana, frozen and chunked" },
                             new Ingredient(){ Description = "6 tablespoons powdered chocolate-flavored malt drink mix (such as Ovaltine®)" },
@@ -406,7 +407,7 @@ namespace Infrastructure.Data.DBInitializer
                         Name = "Hot Chocolate",
                         CategoryId = drinksCategory.Id,
                         Author = user,
-                        Image = "Hot-Chocolate.jpg",
+                        ImageName = "Hot-Chocolate.jpg",
                         Ingredients = new []{
                             new Ingredient(){ Description = "1 cup whole milk" },
                             new Ingredient(){ Description = "1 ½ teaspoons brown sugar" },
