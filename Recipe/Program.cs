@@ -82,6 +82,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 //Register the IBaseRepository and BaseRepository
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IPlansRepository, PlansRepository>();
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<INotificationsRepository, NotificationsRepository>();
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 

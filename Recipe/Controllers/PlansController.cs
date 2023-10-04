@@ -9,7 +9,6 @@ using Infrastructure.Exceptions;
 using Infrastructure.Repositories.Interfaces;
 
 using Application.DTOs.Response;
-using Application.Exceptions;
 using Application.UserSession;
 
 

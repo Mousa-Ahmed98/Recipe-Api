@@ -2,13 +2,11 @@
 using Infrastructure.CustomModels;
 using Infrastructure.Data;
 using Infrastructure.Exceptions.Recipe;
+using Infrastructure.Exceptions.User;
 using Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Numerics;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.Implementation
@@ -34,8 +32,8 @@ namespace Infrastructure.Repositories.Implementation
                 .Include(x => x.Steps)
                 .Include(x => x.Ingredients)
                 .Include(x => x.Plans
-                    .Where(p => _userId != null && p.UserId == _userId) // TODO :: refine this line later
-                    );
+                    .Where(p => _userId != null && p.UserId == _userId)) // TODO :: refine this line later
+                .Include(x => x.Author);
 
             var res = await query.FirstOrDefaultAsync();
 
@@ -131,7 +129,10 @@ namespace Infrastructure.Repositories.Implementation
             Recipe? recipe = await _context.Recipes.Where(r => r.Id == recipeId)
                 .FirstOrDefaultAsync();
 
-            if (recipe == null) return false;
+            if (recipe == null)
+            {
+                throw new RecipeNotFoundException(recipeId);
+            }
 
             _context.FavouriteRecipes.Add(new FavouriteRecipes
             {
@@ -164,7 +165,10 @@ namespace Infrastructure.Repositories.Implementation
                 .Where(x => x.RecipeId == recipeId && x.UserId == _userId)
                 .FirstOrDefaultAsync();
 
-            if (fav == null) return false;
+            if (fav == null)
+            {
+                throw new RecipeNotFoundException(recipeId);
+            }
 
             _context.FavouriteRecipes.Remove(fav);
             await _context.SaveChangesAsync();
@@ -195,7 +199,7 @@ namespace Infrastructure.Repositories.Implementation
 
             if (user == null)
             {
-                // exception 
+                throw new UserNotFoundException(username);
             }
 
             var query = _context.Recipes
