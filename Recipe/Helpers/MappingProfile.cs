@@ -6,10 +6,8 @@ using Infrastructure.Common;
 using Infrastructure.CustomModels;
 using Application.DTOs.Response;
 
-using RecipeApi.DTOs.Request;
-using RecipeApi.DTOs.Request.Common;
-using RecipeAPI.DTOs.Response;
 using Application.DTOs.Request;
+using Application.DTOs.Request.Common;
 
 namespace RecipeApi.Helpers
 {
@@ -19,9 +17,8 @@ namespace RecipeApi.Helpers
         {
             CreateMap<RecipeRequest, Recipe>()
                 .ForMember(dest => dest.ImageName,
-                    opt => opt.MapFrom(src =>
-                        src.Image
-                    ))
+                    opt => opt.Ignore()
+                    )
                 .ForMember(dest => dest.Ingredients, opt =>
                     opt.MapFrom(src =>
                         src.Ingredients.Select(i => new Ingredient { Description = i.Description })

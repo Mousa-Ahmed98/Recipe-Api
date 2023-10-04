@@ -3,7 +3,7 @@
     public class RecipeNotFoundException : NotFoundException
     {
         public RecipeNotFoundException(int id)
-            : base($"Recipe with ${id} was not found.")
+            : base($"Recipe with {id} was not found.")
         {
 
         }

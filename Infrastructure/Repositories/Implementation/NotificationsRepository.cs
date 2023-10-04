@@ -1,5 +1,5 @@
 ﻿using Core.Entities;
-using Core.Enum;
+using Core.Enums;
 using Infrastructure.CustomModels;
 using Infrastructure.Data;
 using Infrastructure.Repositories.Interfaces;

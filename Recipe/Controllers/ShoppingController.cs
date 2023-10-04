@@ -45,7 +45,7 @@ namespace RecipeApi.Controllers
         {
             
             var shoppingItem = shoppingRepository.GetById(itemDto.Id).Result;
-            shoppingItem.isPurchased = itemDto.isPurchased;
+            shoppingItem.IsPurchased = itemDto.isPurchased;
             shoppingRepository.Update(shoppingItem);
             return Ok(shoppingItem);
         }

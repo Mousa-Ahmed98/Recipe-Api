@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Application.UserSession;
 using Infrastructure.Exceptions;
 using Infrastructure.Repositories.Interfaces;
-using RecipeAPI.DTOs.Request.Common;
-
+using Application.DTOs.Request.Common;
 
 namespace RecipeApi.Controllers
 {

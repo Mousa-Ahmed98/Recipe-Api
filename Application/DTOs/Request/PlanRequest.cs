@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RecipeApi.Controllers
+namespace Application.DTOs.Request
 {
     public class PlanRequest
     {

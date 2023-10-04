@@ -1,4 +1,4 @@
-﻿namespace RecipeAPI.DTOs.Response
+﻿namespace Application.DTOs.Response
 {
     public record CategoryResponse
     {

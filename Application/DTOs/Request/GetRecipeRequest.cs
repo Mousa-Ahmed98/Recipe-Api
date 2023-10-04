@@ -1,6 +1,6 @@
-﻿using RecipeAPI.DTOs.Request.Common;
+﻿using Application.DTOs.Request.Common;
 
-namespace RecipeAPI.DTOs.Request
+namespace Application.DTOs.Request
 {
     public record GetRecipeRequest : PaginatedRequest
     {
