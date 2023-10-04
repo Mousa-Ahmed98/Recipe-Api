@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using Infrastructure.CustomModels;
 using Infrastructure.Data;
+using Infrastructure.Exceptions.Recipe;
 using Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -37,11 +38,12 @@ namespace Infrastructure.Repositories.Implementation
                     );
 
             var res = await query.FirstOrDefaultAsync();
-            
-            if (res == null) {
+
+            if (res == null)
+            {
                 throw new RecipeNotFoundException(id);
             }
-            
+
             res.InFavourites = _userId != null && _context.FavouriteRecipes
                 .Any(f => f.RecipeId == res.Id && f.UserId == _userId);
 
@@ -128,7 +130,7 @@ namespace Infrastructure.Repositories.Implementation
         {
             Recipe? recipe = await _context.Recipes.Where(r => r.Id == recipeId)
                 .FirstOrDefaultAsync();
-            
+
             if (recipe == null) return false;
 
             _context.FavouriteRecipes.Add(new FavouriteRecipes
@@ -161,8 +163,8 @@ namespace Infrastructure.Repositories.Implementation
             var fav = await _context.FavouriteRecipes
                 .Where(x => x.RecipeId == recipeId && x.UserId == _userId)
                 .FirstOrDefaultAsync();
-            
-            if(fav == null) return false;
+
+            if (fav == null) return false;
 
             _context.FavouriteRecipes.Remove(fav);
             await _context.SaveChangesAsync();
@@ -239,6 +241,7 @@ namespace Infrastructure.Repositories.Implementation
                 );
             }
         }
+
         public async Task RemoveRecipeById(int recipeId)
         {
             var recipe = await _context.Recipes
