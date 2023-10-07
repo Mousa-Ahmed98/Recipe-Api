@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using Infrastructure.CustomModels;
 using Infrastructure.Data;
+using Infrastructure.Exceptions;
 using Infrastructure.Exceptions.Recipe;
 using Infrastructure.Exceptions.User;
 using Infrastructure.Repositories.Interfaces;
@@ -15,13 +16,6 @@ namespace Infrastructure.Repositories.Implementation
     {
         public RecipeRepository(StoreContext context) : base(context)
         {
-        }
-
-        public async Task<IEnumerable<Recipe>> GetAllRecipes()
-        {
-            return await GetAsync(
-                    includeProperties: "Category,Ingredients,Steps"
-                );
         }
 
         public async Task<Recipe?> GetOneById(int id)
@@ -67,15 +61,15 @@ namespace Infrastructure.Repositories.Implementation
             };
 
             var res = query
-            .OrderBy(recipe => recipe.Id)
-            .Select(recipe => new RecipeSummary
-            {
-                Id = recipe.Id,
-                Name = recipe.Name,
-                ImageName = recipe.ImageName,
-                InFavourites = _userId != null && _context.FavouriteRecipes
-                    .Any(f => f.RecipeId == recipe.Id && f.UserId == _userId)
-            });
+                .OrderBy(recipe => recipe.Id)
+                .Select(recipe => new RecipeSummary
+                {
+                    Id = recipe.Id,
+                    Name = recipe.Name,
+                    ImageName = recipe.ImageName,
+                    InFavourites = _userId != null && _context.FavouriteRecipes
+                        .Any(f => f.RecipeId == recipe.Id && f.UserId == _userId)
+                });
 
             return await PaginatedList<RecipeSummary>
                 .CreateAsync(res, pageNumber, pageSize);
@@ -96,18 +90,23 @@ namespace Infrastructure.Repositories.Implementation
             foreach (var ing in filterIngredients)
             {
                 var filteredQuery = query.Where(x => x.Description.Contains(ing));
+                // getting ingredients here one by one 
+                // TODO :: try to make it one call
                 filteredIngredients.AddRange(await filteredQuery.ToListAsync());
             }
 
+            // group ingredients by their recipeId
             var groupedIngredients = filteredIngredients
                 .Distinct()
                 .GroupBy(x => x.RecipeId);
 
+            // get all recipe ids that contain all (same number of) provided filter ingredients
             var filteredRecipeIds = groupedIngredients
                 .Where(g => g.Count() >= filterIngredients.Count)
                 .Select(g => g.Key)
                 .ToList();
-
+            
+            // select recipe summary based on ids we filtered in filteredRecipeIds
             var filteredRecipes = _context.Recipes
                 .Where(r => filteredRecipeIds.Contains(r.Id))
                 .Distinct()
@@ -124,14 +123,22 @@ namespace Infrastructure.Repositories.Implementation
                 (filteredRecipes, pageNumber, pageSize);
         }
 
-        public async Task<bool> AddRecipeToFavourites(int recipeId)
+        public async Task AddRecipeToFavourites(int recipeId)
         {
-            Recipe? recipe = await _context.Recipes.Where(r => r.Id == recipeId)
-                .FirstOrDefaultAsync();
+            bool recipeExists = await _context.Recipes
+                .AnyAsync(r => r.Id == recipeId);
 
-            if (recipe == null)
+            if (!recipeExists)
             {
                 throw new RecipeNotFoundException(recipeId);
+            }
+
+            var favExists = await _context.FavouriteRecipes
+                .AnyAsync(f => f.RecipeId == recipeId && f.UserId == _userId);
+
+            if (favExists)
+            {
+                throw new AlreadyInFavouritesException(recipeId);
             }
 
             _context.FavouriteRecipes.Add(new FavouriteRecipes
@@ -141,9 +148,41 @@ namespace Infrastructure.Repositories.Implementation
             });
 
             await _context.SaveChangesAsync();
-
-            return true;
         }
+
+
+        public async Task RemoveRecipeFromFavourites(int recipeId)
+        {
+            var fav = await _context.FavouriteRecipes
+                .FirstOrDefaultAsync(f => f.RecipeId == recipeId && f.UserId == _userId);
+
+            if (fav == null)
+            {
+                throw new RecipeNotInFavouritesException(recipeId);
+            }
+
+            _context.FavouriteRecipes.Remove(fav);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<PaginatedList<RecipeSummary>> GetFavourites(string userId, int currentPage, int pageSize)
+        {
+            var query = _context.FavouriteRecipes
+                .Where(fr => fr.UserId == userId)
+                .OrderByDescending(fr => fr.CreatedAt)
+                .Join(_context.Recipes, fr => fr.RecipeId, r => r.Id, (fr, r) => r)
+                .Select(r => new RecipeSummary
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    ImageName = r.ImageName,
+                    InFavourites = true
+                });
+
+            return await PaginatedList<RecipeSummary>
+                .CreateAsync(query, currentPage, pageSize);
+        }
+
 
         public async Task<PaginatedList<RecipeSummary>> SearchRecipes(string query, int currentPage, int pageSize)
         {
@@ -159,39 +198,6 @@ namespace Infrastructure.Repositories.Implementation
             return await PaginatedList<RecipeSummary>.CreateAsync(recipes, currentPage, pageSize);
         }
 
-        public async Task<bool> RemoveRecipeFromFavourites(int recipeId)
-        {
-            var fav = await _context.FavouriteRecipes
-                .Where(x => x.RecipeId == recipeId && x.UserId == _userId)
-                .FirstOrDefaultAsync();
-
-            if (fav == null)
-            {
-                throw new RecipeNotFoundException(recipeId);
-            }
-
-            _context.FavouriteRecipes.Remove(fav);
-            await _context.SaveChangesAsync();
-
-            return true;
-        }
-
-        public async Task<PaginatedList<RecipeSummary>> GetFavourites(int currentPage, int pageSize)
-        {
-            var query = _context.FavouriteRecipes
-                .Where(fr => fr.UserId == _userId)
-                .OrderByDescending(fr => fr.CreatedAt)
-                .Join(_context.Recipes, fr => fr.RecipeId, r => r.Id, (fr, r) => r)
-                .Select(r => new RecipeSummary
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                    ImageName = r.ImageName,
-                    InFavourites = true
-                });
-
-            return await PaginatedList<RecipeSummary>.CreateAsync(query, currentPage, pageSize);
-        }
 
         public async Task<PaginatedList<RecipeSummary>> GetRecipesByUsername(string username, int currentPage, int pageSize)
         {
@@ -214,13 +220,14 @@ namespace Infrastructure.Repositories.Implementation
             return await PaginatedList<RecipeSummary>.CreateAsync(query, currentPage, pageSize);
         }
 
-        public async Task CreateNewRecipe(Recipe recipe)
+        public async Task<Recipe> CreateNewRecipe(Recipe recipe)
         {
             _context.Recipes.Add(recipe);
-            await _context.SaveChangesAsync(); // TODO :: make it just one call
-                                               // (I have to save for fk constraint)
-            await NotifyFollowers(recipe.Id, recipe.AuthorId);
             await _context.SaveChangesAsync();
+            
+            await NotifyFollowers(recipe.Id, recipe.AuthorId);
+            
+            return recipe;
         }
 
         private async Task NotifyFollowers(int recipeId, string authorId)
@@ -244,6 +251,8 @@ namespace Infrastructure.Repositories.Implementation
                     }
                 );
             }
+         
+            await _context.SaveChangesAsync();
         }
 
         public async Task RemoveRecipeById(int recipeId)
@@ -256,10 +265,40 @@ namespace Infrastructure.Repositories.Implementation
                 throw new RecipeNotFoundException(recipeId);
             }
 
+            if (recipe.AuthorId != _userId)
+            {
+                throw new UnAuthorizedException();
+            }
+
             _context.Recipes.Remove(recipe);
 
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Recipe> UpdateRecipe(Recipe request)
+        {
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(x => x.Id == request.CategoryId);
+
+            if (category == null)
+            {
+                throw new NotFoundException("Category Not found");
+            }
+
+            request.Category = category;
+
+            _context.Ingredients.RemoveRange(
+                _context.Ingredients.Where(x => x.RecipeId == request.Id)
+                );
+        
+            _context.Steps.RemoveRange(
+                _context.Steps.Where(x => x.RecipeId == request.Id)
+            );
+
+            _context.Recipes.Update(request);
+            await _context.SaveChangesAsync();
+            
+            return request;
+        }
     }
 }

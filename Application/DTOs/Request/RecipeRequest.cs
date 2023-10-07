@@ -22,46 +22,5 @@ namespace Application.DTOs.Request
             return "";
         }
 
-        public void appendOrdersToSteps()
-        {
-            byte i = 0;
-            foreach (var step in Steps)
-            {
-                step.Order = i++;
-            }
-        }
-
-        public void applyUpdateChanges(Core.Entities.Recipe recipe)
-        {
-            recipe.Name = Name ?? recipe.Name;
-            recipe.CategoryId = CategoryId;
-            recipe.ImageName = ImageData ?? recipe.ImageName;
-            recipe.Ingredients = getUpdatedIngredients();
-            recipe.Steps = getUpdatedSteps();
-            
-        }
-        private List<Ingredient> getUpdatedIngredients()
-        {
-            List<Ingredient> updatedIngredients = new List<Ingredient>();
-            foreach (var item in Ingredients)
-            {
-                updatedIngredients.Add(new Ingredient { Description = item.Description });
-            }
-            return updatedIngredients;
-        }
-
-        private List<Step> getUpdatedSteps()
-        {
-            byte i = 1;
-            List<Step> updatedSteps = new List<Step>();
-            foreach (var item in Steps)
-            {
-                updatedSteps.Add(new Step { Description = item.Description, Order = i});
-                i++;
-            }
-            return updatedSteps;
-        }
-
-
     }
 }
