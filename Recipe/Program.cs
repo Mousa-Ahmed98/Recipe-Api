@@ -1,14 +1,16 @@
+using System;
 using System.IO;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Models;
 
 using Core.Entities;
 using Core.Interfaces;
@@ -18,13 +20,13 @@ using Infrastructure.Data.DBInitializer;
 using Infrastructure.Repositories.Implementation;
 using Infrastructure.Repositories.Interfaces;
 
-using RecipeApi.Helpers;
 using Application.UserSession;
-using Microsoft.OpenApi.Models;
-using Quartz;
 using Application.Services;
-using System;
 using Application.Interfaces;
+
+using RecipeApi.Helpers;
+using Quartz;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,67 +72,29 @@ builder.Services.AddSwaggerGen(options =>
     options.AddSecurityRequirement(securityRequirements);
 });
 
-builder.Services.AddDbContext<StoreContext>(options
-    => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-    b => b.MigrationsAssembly(typeof(StoreContext).Assembly.FullName)));
+builder.Services.AddDbContext<StoreContext>(options => 
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly(typeof(StoreContext).Assembly.FullName)
+    ));
 
 //Register UserManager
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.User.RequireUniqueEmail = true)
     .AddEntityFrameworkStores<StoreContext>();
 
-//Register the IBaseRepository and BaseRepository
+// Register DB Repositories
+builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IPlansRepository, PlansRepository>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<INotificationsRepository, NotificationsRepository>();
-builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 
+// Configure Authentication
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserSession, Session>();
-
-// Configure Quartz.NET scheduler
-builder.Services.AddQuartz(q =>
-{
-    // Add the job and specify the job type
-    q.AddJob<PlansReminder>(j =>
-        j.WithIdentity("PlansReminder", "group1")
-        );
-
-    // Configure the trigger for the job
-    q.AddTrigger(t => t
-        .ForJob("PlansReminder", "group1")
-        .StartNow()
-        .WithSimpleSchedule(s => s
-            .WithInterval(TimeSpan.FromDays(1)) // everyday 
-            .RepeatForever()));
-});
-
-// Configure the Quartz.NET hosted service
-builder.Services.AddQuartzHostedService(options =>
-{
-    options.WaitForJobsToComplete = true;
-    options.AwaitApplicationStarted = true;
-});
-
-// Add AutoMapper configuration in Startup.cs or a configuration file
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("*",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:4200")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials()
-            .WithExposedHeaders("Content-Disposition");
-        });
-});
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 //Configuring Jwt 
 builder.Services.AddAuthentication(options =>
@@ -155,6 +119,48 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
+// Configure Quartz.NET scheduler
+builder.Services.AddQuartz(q =>
+{
+    // Add the job and specify the job type
+    q.AddJob<PlansReminder>(j =>
+        j.WithIdentity(nameof(PlansReminder), "group1")
+        );
+
+    // Configure the trigger for the job
+    q.AddTrigger(t => t
+        .ForJob(nameof(PlansReminder), "group1")
+        .StartNow()
+        .WithSimpleSchedule(s => s
+            .WithInterval(TimeSpan.FromDays(1)) // everyday 
+            .RepeatForever()));
+});
+
+// Configure the Quartz.NET hosted service
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+    options.AwaitApplicationStarted = true;
+});
+
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.WithOrigins("https://reciperealmui-d092e.web.app")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .WithExposedHeaders("Content-Disposition");
+        });
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -173,7 +179,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/images"
 });
 
-app.UseCors("*");
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 

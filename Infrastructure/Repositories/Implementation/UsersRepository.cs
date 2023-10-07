@@ -34,6 +34,7 @@ namespace Infrastructure.Repositories.Implementation
 
             return await PaginatedList<UserResponse>.CreateAsync(query, pageNumber, pageSize);
         }
+
         public async Task<UserResponse> GetByUsername(string userId, string username)
         {
             var user = await _context.Users

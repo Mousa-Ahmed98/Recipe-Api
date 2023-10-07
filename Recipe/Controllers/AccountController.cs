@@ -9,6 +9,7 @@ using Infrastructure.Repositories.Interfaces;
 using Application.DTOs.Response;
 using Application.UserSession;
 using Application.DTOs.Request.Common;
+using Microsoft.AspNetCore.Http;
 
 namespace RecipeApi.Controllers
 {
@@ -17,8 +18,8 @@ namespace RecipeApi.Controllers
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
-        private readonly IRecipeRepository recipeRepository;
-        private readonly INotificationsRepository NofificationsRepository;
+        private readonly IRecipeRepository _recipeRepository;
+        private readonly INotificationsRepository _nofificationsRepository;
         private readonly IUserSession _session;
         private readonly IMapper _mapper;
 
@@ -29,18 +30,19 @@ namespace RecipeApi.Controllers
             IMapper mapper
             )
         {
-            this.recipeRepository = recipeRepository;
+            _recipeRepository = recipeRepository;
             _session = session;
             _mapper = mapper;
-            NofificationsRepository = nofificationsRepository;
+            _nofificationsRepository = nofificationsRepository;
         }
 
         [HttpGet("my-recipes")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<PaginatedList<RecipeSummary>> GetRelatedRecipes(
             [FromQuery] PaginatedRequest request
             )
         {
-            var res = await recipeRepository.GetRecipesByUsername(
+            var res = await _recipeRepository.GetRecipesByUsername(
                 _session.Username,
                 request.CurrentPage,
                 request.PageSize
@@ -49,12 +51,27 @@ namespace RecipeApi.Controllers
             return res;
         }
 
+        [HttpGet("favourites")]
+        public async Task<PaginatedList<RecipeSummary>> Favourites(
+            [FromQuery] PaginatedRequest request
+            )
+        {
+            var res = await _recipeRepository.GetFavourites(
+                _session.UserId,
+                request.CurrentPage,
+                request.PageSize
+                );
+
+            return res;
+        }
+
+
         [HttpGet("recent-notifications")]
         public async Task<PaginatedList<NotificationResponse>> GetNotifications(
             [FromQuery] PaginatedRequest request
             )
         {
-            var res = await NofificationsRepository.GetRecentNotifications(
+            var res = await _nofificationsRepository.GetRecentNotifications(
                 _session.UserId,
                 request.CurrentPage,
                 request.PageSize
@@ -66,7 +83,7 @@ namespace RecipeApi.Controllers
         [HttpPost("read-notifications")]
         public async Task<IActionResult> ReadNotifications()
         {
-            await NofificationsRepository.ReadRecentNotifications(_session.UserId);
+            await _nofificationsRepository.ReadRecentNotifications(_session.UserId);
 
             return NoContent();
         }

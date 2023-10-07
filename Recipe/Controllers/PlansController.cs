@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +10,7 @@ using Infrastructure.Repositories.Interfaces;
 using Application.DTOs.Response;
 using Application.UserSession;
 using Application.DTOs.Request;
+using Microsoft.AspNetCore.Http;
 
 namespace RecipeApi.Controllers
 {
@@ -35,6 +35,7 @@ namespace RecipeApi.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPlans()
         {
             var res = await _plansRepository.GetAllPlans();
@@ -45,6 +46,10 @@ namespace RecipeApi.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PlanOut(
             [FromQuery] PlanRequest request
             )
@@ -61,7 +66,7 @@ namespace RecipeApi.Controllers
             }
             catch (UnAuthorizedException ex)
             {
-                return BadRequest(ex.Message);
+                return Unauthorized(ex.Message);
             }
             catch (NotFoundException ex)
             {
@@ -71,13 +76,13 @@ namespace RecipeApi.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
         }
 
         [HttpPut("{id}/change-date")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ChangeDate(
             [FromRoute] int id,
             [FromQuery] string date
@@ -91,7 +96,7 @@ namespace RecipeApi.Controllers
             }
             catch (UnAuthorizedException ex)
             {
-                return BadRequest(ex.Message);
+                return Unauthorized(ex.Message);
             }
             catch (NotFoundException ex)
             {
@@ -101,13 +106,13 @@ namespace RecipeApi.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PlanOff(
             [FromRoute] int id
             )
@@ -120,7 +125,7 @@ namespace RecipeApi.Controllers
             }
             catch (UnAuthorizedException ex)
             {
-                return BadRequest(ex.Message);
+                return Unauthorized(ex.Message);
             }
             catch (NotFoundException ex)
             {
@@ -129,10 +134,6 @@ namespace RecipeApi.Controllers
             catch (BadRequestException ex)
             {
                 return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
             }
         }
 

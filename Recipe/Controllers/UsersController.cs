@@ -11,7 +11,6 @@ using Application.DTOs.Request.Common;
 namespace RecipeApi.Controllers
 {
 
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
@@ -22,18 +21,15 @@ namespace RecipeApi.Controllers
 
         public UsersController(
             IUsersRepository usersRepository,
-            IUserSession session
-,
+            IUserSession session,
             IRecipeRepository recipeRepository)
         {
             _usersRepository = usersRepository;
-            _session = session;
             _RecipeRepository = recipeRepository;
+            _session = session;
         }
 
         [HttpGet]
-        [Route("")]
-        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllUsers(
             [FromQuery] PaginatedRequest request
@@ -56,9 +52,7 @@ namespace RecipeApi.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("{username}")]
-        [AllowAnonymous]
+        [HttpGet("{username}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetByUsername([FromRoute] string username)
@@ -73,14 +67,10 @@ namespace RecipeApi.Controllers
             {
                 return NotFound(ex.Message);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
         }
 
-        [HttpPost]
-        [Route("{username}/follow")]
+        [Authorize]
+        [HttpPost("{username}/follow")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Follow([FromRoute] string username)
@@ -95,14 +85,14 @@ namespace RecipeApi.Controllers
             {
                 return NotFound(ex.Message);
             }
-            catch (Exception ex)
+            catch (BadRequestException ex)
             {
-                return StatusCode(500, ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpPost]
-        [Route("{username}/unfollow")]
+        [Authorize]
+        [HttpPost("{username}/unfollow")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UnFollow([FromRoute] string username)
@@ -121,14 +111,9 @@ namespace RecipeApi.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
         }
 
-        [HttpGet]
-        [Route("{username}/recipes")]
+        [HttpGet("{username}/recipes")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserRecipes(
@@ -150,10 +135,6 @@ namespace RecipeApi.Controllers
             catch (BadRequestException ex)
             {
                 return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
             }
         }
     }
