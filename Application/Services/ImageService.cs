@@ -23,7 +23,7 @@ namespace Application.Services
             var base64Data = imageData.Split(',')[1];
             var imageFormat = imageData.Split(',')[0].Split('/')[1].Split(';')[0];
 
-            var imageName = $"{recipeName}-{Guid.NewGuid()}.{imageFormat}";
+            var imageName = $"{ recipeName.Replace(' ', '-') }-{Guid.NewGuid()}.{imageFormat}";
 
             var imagePath = Path.Combine(_imageDirectory, imageName);
 

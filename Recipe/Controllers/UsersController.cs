@@ -124,7 +124,12 @@ namespace RecipeApi.Controllers
             try
             {
                 var res = await _RecipeRepository
-                    .GetRecipesByUsername(username, request.CurrentPage, request.PageSize);
+                    .GetRecipesByUsername(
+                        _session.UserId,
+                        username, 
+                        request.CurrentPage, 
+                        request.PageSize
+                    );
 
                 return Ok(res);
             }

@@ -24,6 +24,7 @@ namespace Infrastructure.Repositories.Implementation
                 FirstName= x.FirstName,
                 LastName= x.LastName,
                 UserName= x.UserName,
+                Email = x.Email,
                 IsFollowed = _context.Follows
                     .Any(f => f.FollowerId == userId && f.FolloweeId == x.Id),
                 Followers = _context.Follows
@@ -43,6 +44,7 @@ namespace Infrastructure.Repositories.Implementation
                     FirstName = x.FirstName,
                     LastName = x.LastName,
                     UserName = x.UserName,
+                    Email = x.Email,
                     IsFollowed = _context.Follows
                         .Any(f => f.FollowerId == userId && f.FolloweeId == x.Id),
                     Followers = _context.Follows

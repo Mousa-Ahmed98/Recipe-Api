@@ -199,7 +199,7 @@ namespace Infrastructure.Repositories.Implementation
         }
 
 
-        public async Task<PaginatedList<RecipeSummary>> GetRecipesByUsername(string username, int currentPage, int pageSize)
+        public async Task<PaginatedList<RecipeSummary>> GetRecipesByUsername(string userId, string username, int currentPage, int pageSize)
         {
             var user = _context.Users.Where(x => x.UserName == username).FirstOrDefault();
 
@@ -215,6 +215,9 @@ namespace Infrastructure.Repositories.Implementation
                     Id = r.Id,
                     Name = r.Name,
                     ImageName = r.ImageName,
+                    InFavourites = userId != null && _context.FavouriteRecipes
+                        .Any(f => f.RecipeId == r.Id && f.UserId == userId)
+
                 });
 
             return await PaginatedList<RecipeSummary>.CreateAsync(query, currentPage, pageSize);

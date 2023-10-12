@@ -268,7 +268,7 @@ namespace RecipeApi.Controllers
             {
                 await _recipeRepository.RemoveRecipeFromFavourites(id);
 
-                return Created(nameof(AddToFavourites), null);
+                return Created(nameof(RemoveFromFavourites), null);
             }
             catch (BadRequestException ex)
             {

@@ -43,6 +43,7 @@ namespace RecipeApi.Controllers
             )
         {
             var res = await _recipeRepository.GetRecipesByUsername(
+                _session.UserId,
                 _session.Username,
                 request.CurrentPage,
                 request.PageSize
@@ -50,6 +51,7 @@ namespace RecipeApi.Controllers
 
             return res;
         }
+
 
         [HttpGet("favourites")]
         public async Task<PaginatedList<RecipeSummary>> Favourites(
