@@ -1,14 +1,15 @@
-﻿using Core.Entities;
-using Infrastructure.Data;
-using Infrastructure.Exceptions;
-using Infrastructure.Exceptions.Plan;
-using Infrastructure.Exceptions.Recipe;
-using Infrastructure.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Core.Entities;
+using Core.Interfaces.Repositories;
+using Infrastructure.Data;
+using Infrastructure.Exceptions;
+using Infrastructure.Exceptions.Plan;
+using Infrastructure.Exceptions.Recipe;
 
 namespace Infrastructure.Repositories.Implementation
 {
@@ -20,8 +21,6 @@ namespace Infrastructure.Repositories.Implementation
 
         public async Task<List<Plan>> GetAllPlans()
         {
-            ThrowIfUserIdNull();
-            
             return await _context.Plans
                 .Where(x => x.UserId == _userId)
                 .Include(x => x.Recipe)

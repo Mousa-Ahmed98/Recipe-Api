@@ -1,10 +1,10 @@
-﻿using Core.Enums;
-using Infrastructure.CustomModels;
+﻿using Core.CustomModels;
+using Core.Enums;
 using System;
 
 namespace Application.DTOs.Response
 {
-    public class NotificationResponse
+    public record NotificationResponse
     {
         public DateTime CreatedAt { get; set; }
         public bool Read { get; set; }

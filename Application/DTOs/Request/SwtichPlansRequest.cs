@@ -2,7 +2,7 @@
 
 namespace Application.DTOs.Request
 {
-    public class SwtichPlansRequest
+    public record SwtichPlansRequest
     {
         [Required]
         public string Day1 { get; set; }

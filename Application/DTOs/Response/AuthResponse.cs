@@ -2,7 +2,7 @@
 
 namespace Core.Entities
 {
-    public class AuthModel
+    public record AuthResponse
     {
         public string Message { get; set; }
         public bool IsAuthenticated { get; set; }

@@ -1,9 +1,9 @@
-﻿using AutoMapper;
-using Core.Entities;
-using Core.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core.Entities;
+using Core.Interfaces.Repositories;
+using AutoMapper;
 
 namespace RecipeApi.Controllers
 {

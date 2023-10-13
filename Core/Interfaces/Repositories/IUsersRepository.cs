@@ -1,10 +1,10 @@
-﻿using Core.Entities;
-using Core.Interfaces;
-using Infrastructure.Common;
-using Infrastructure.CustomModels;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories.Interfaces
+using Core.Common;
+using Core.CustomModels;
+using Core.Entities;
+
+namespace Core.Interfaces.Repositories
 {
     public interface IUsersRepository : IBaseRepository<ApplicationUser>
     {

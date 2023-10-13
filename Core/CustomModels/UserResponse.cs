@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Infrastructure.Common
+﻿namespace Core.CustomModels
 {
     public class UserResponse
     {
@@ -9,8 +7,7 @@ namespace Infrastructure.Common
         public string UserName { get; set; }
         public string Email { get; set; }
         public bool IsFollowed { get; set; }
-        public int Followers{ get; set; }
+        public int Followers { get; set; }
         public int Following { get; set; }
-
     }
 }

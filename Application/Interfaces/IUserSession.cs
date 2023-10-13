@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Application.UserSession
+namespace Application.Interfaces
 {
     public interface IUserSession
     {

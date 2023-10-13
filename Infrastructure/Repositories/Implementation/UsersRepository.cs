@@ -1,13 +1,13 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Core.Entities;
 
-using Infrastructure.Common;
-using Infrastructure.CustomModels;
+using Core.Entities;
+using Core.Interfaces.Repositories;
+using Core.CustomModels;
+using Core.Common;
 using Infrastructure.Data;
 using Infrastructure.Exceptions.User;
-using Infrastructure.Repositories.Interfaces;
 
 namespace Infrastructure.Repositories.Implementation
 {

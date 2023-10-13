@@ -6,7 +6,7 @@ namespace Application.Interfaces
 {
     public interface IAuthService
     {
-        Task<RegisterResponse> RegisterAsync(RegisterModel model);
-        Task<AuthModel> TokenRequestAsync(TokenRequestModel model);
+        Task<RegisterResponse> RegisterAsync(RegisterRequest model);
+        Task<AuthResponse> TokenRequestAsync(TokenRequest model);
     }
 }

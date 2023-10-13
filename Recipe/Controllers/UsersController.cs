@@ -3,10 +3,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Application.UserSession;
+
+using Core.Interfaces.Repositories;
 using Infrastructure.Exceptions;
-using Infrastructure.Repositories.Interfaces;
-using Application.DTOs.Request.Common;
+using Application.Interfaces;
+using Application.DTOs.Request;
 
 namespace RecipeApi.Controllers
 {

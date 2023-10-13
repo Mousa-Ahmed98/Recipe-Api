@@ -2,7 +2,7 @@
 
 namespace Core.Entities
 {
-    public class RegisterModel
+    public record RegisterRequest
     {
         [Required]
         [MaxLength(24)]

@@ -8,17 +8,14 @@ using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 
 using Core.Entities;
-using Core.Interfaces;
-using Infrastructure.Repositories.Interfaces;
-using Infrastructure.CustomModels;
+using Core.Common;
+using Core.CustomModels;
+using Core.Interfaces.Repositories;
 using Infrastructure.Exceptions;
 using Infrastructure.Exceptions.Recipe;
-
-using Application.UserSession;
 using Application.Interfaces;
 using Application.DTOs.Request;
 using Application.DTOs.Response;
-using Application.DTOs.Request.Common;
 using Microsoft.AspNetCore.Http;
 
 namespace RecipeApi.Controllers

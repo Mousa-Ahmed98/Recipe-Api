@@ -1,12 +1,14 @@
-﻿using Core.Entities;
-using Core.Enums;
-using Infrastructure.CustomModels;
-using Infrastructure.Data;
-using Infrastructure.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
+using Core.Entities;
+using Core.Enums;
+using Core.Common;
+using Core.Interfaces.Repositories;
+
+using Infrastructure.Data;
 
 namespace Infrastructure.Repositories.Implementation
 {
