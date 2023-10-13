@@ -1,4 +1,4 @@
-﻿namespace Application.DTOs.Request.Common
+﻿namespace Application.DTOs.Request
 {
     public record PaginatedRequest
     {

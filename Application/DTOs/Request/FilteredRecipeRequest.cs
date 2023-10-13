@@ -1,6 +1,4 @@
-﻿using Application.DTOs.Request.Common;
-
-namespace Application.DTOs.Request
+﻿namespace Application.DTOs.Request
 {
     public record FilteredRecipeRequest : PaginatedRequest
     {

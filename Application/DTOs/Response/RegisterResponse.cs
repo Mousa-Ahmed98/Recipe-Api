@@ -1,6 +1,8 @@
-﻿namespace Infrastructure.Common
+﻿using Core.CustomModels;
+
+namespace Infrastructure.Common
 {
-    public class RegisterResponse
+    public record RegisterResponse
     {
         public bool Success { get; set; }
         public string Message { get; set; }

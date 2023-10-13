@@ -1,15 +1,15 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using AutoMapper;
 
-using Infrastructure.CustomModels;
-using Infrastructure.Repositories.Interfaces;
-
 using Application.DTOs.Response;
-using Application.UserSession;
-using Application.DTOs.Request.Common;
-using Microsoft.AspNetCore.Http;
+using Core.Interfaces.Repositories;
+using Core.CustomModels;
+using Core.Common;
+using Application.Interfaces;
+using Application.DTOs.Request;
 
 namespace RecipeApi.Controllers
 {

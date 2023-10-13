@@ -1,5 +1,5 @@
-﻿using Application.DTOs.Request.Common;
-using Infrastructure.Common;
+﻿using Application.DTOs.Common;
+using Core.CustomModels;
 using System.Collections.Generic;
 
 namespace Application.DTOs.Response

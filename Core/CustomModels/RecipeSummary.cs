@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.CustomModels
+﻿namespace Core.CustomModels
 {
     public record RecipeSummary
     {

@@ -1,7 +1,7 @@
-﻿using Application.Interfaces;
+﻿using System.Threading.Tasks;
 using Core.Entities;
+using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 
 namespace RecipeApi.Controllers
@@ -18,7 +18,7 @@ namespace RecipeApi.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterModel model)
+        public async Task<IActionResult> Register(RegisterRequest model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -33,7 +33,7 @@ namespace RecipeApi.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(TokenRequestModel model)
+        public async Task<IActionResult> Login(TokenRequest model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

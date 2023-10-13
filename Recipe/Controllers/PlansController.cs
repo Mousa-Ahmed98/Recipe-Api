@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
 using Infrastructure.Exceptions;
-using Infrastructure.Repositories.Interfaces;
 
 using Application.DTOs.Response;
-using Application.UserSession;
 using Application.DTOs.Request;
 using Microsoft.AspNetCore.Http;
+using Core.Interfaces.Repositories;
+using Application.Interfaces;
 
 namespace RecipeApi.Controllers
 {

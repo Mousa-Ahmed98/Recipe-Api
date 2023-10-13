@@ -1,9 +1,9 @@
-﻿using System;
-using Infrastructure.CustomModels;
+﻿using Core.CustomModels;
+using System;
 
 namespace Application.DTOs.Response
 {
-    public class PlanResponse
+    public record PlanResponse
     {
         public int Id { get; set; }
         public DateTime Day { get; set; }

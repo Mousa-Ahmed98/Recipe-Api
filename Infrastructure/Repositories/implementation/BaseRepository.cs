@@ -1,12 +1,13 @@
 ﻿using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using Infrastructure.Data;
-using Core.Interfaces;
 using System.Threading.Tasks;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
 using Infrastructure.Exceptions;
+using Infrastructure.Data;
+using Core.Interfaces.Repositories;
 
 namespace Infrastructure.Repositories.Implementation
 {
@@ -42,6 +43,11 @@ namespace Infrastructure.Repositories.Implementation
             }
             
             return await query.ToListAsync();
+        }
+
+        public async Task<TEntity> GetById(int id)
+        {
+            return await _dbSet.FindAsync(id);
         }
 
         public virtual void Add(TEntity entity)
@@ -90,19 +96,13 @@ namespace Infrastructure.Repositories.Implementation
             return await _context.SaveChangesAsync();
         }
 
+        // just for now 
+        // we need a service to be the middle point between the controller and repository
+        // actually at this point repositories are used as a mixed purpose of an actual repository
+        // and as a service!
         public void SetUserId(string userId)
         {
             _userId = userId;
-        }
-
-        public void ThrowIfUserIdNull()
-        {
-            if (_userId == null) { throw new UnAuthorizedException(); }
-        }
-
-        public async Task<TEntity> GetById(int id)
-        {
-            return await _dbSet.FindAsync(id);
         }
     }
 }

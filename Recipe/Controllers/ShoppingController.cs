@@ -1,12 +1,13 @@
-﻿using Application.DTOs.Request;
-using Application.DTOs.Response;
-using AutoMapper;
-using Core.Entities;
-using Core.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+
+using Core.Entities;
+using Core.Interfaces.Repositories;
+
+using Application.DTOs.Request;
+using Application.DTOs.Response;
 
 namespace RecipeApi.Controllers
 {

@@ -1,20 +1,22 @@
 ﻿using System.Linq;
 using AutoMapper;
 using Core.Entities;
-
-using Infrastructure.Common;
-using Infrastructure.CustomModels;
 using Application.DTOs.Response;
 
 using Application.DTOs.Request;
-using Application.DTOs.Request.Common;
+using Core.CustomModels;
+using Core.Common;
+using Application.DTOs.Common;
 
-namespace RecipeApi.Helpers
+namespace RecipeApi.Mappings
 {
     public class MappingProfile : Profile
     {
         public MappingProfile()
         {
+
+            /// Recipe
+
             CreateMap<RecipeRequest, Recipe>()
                 .ForMember(dest => dest.ImageName,
                     opt => opt.Ignore()
@@ -54,6 +56,8 @@ namespace RecipeApi.Helpers
                         src.Author
                     ));
 
+            CreateMap<Recipe, RecipeSummary>();
+
             CreateMap<Category, CategoryResponse>();
 
             CreateMap<StepDto, Step>()
@@ -66,13 +70,17 @@ namespace RecipeApi.Helpers
                         src.Order
                     ));
 
-            CreateMap<Recipe, RecipeSummary>();
+            /// ApplicationUser
 
             CreateMap<ApplicationUser, UserResponse>();
+
+            /// Plans
 
             CreateMap<Plan, PlanResponse>();
             CreateMap<Plan, PlanSummaryResponse>();
 
+            /// Notifications
+            
             CreateMap<PaginatedList<Notification>, PaginatedList<NotificationResponse>>();
 
             CreateMap<Notification, NotificationResponse>()
@@ -85,6 +93,9 @@ namespace RecipeApi.Helpers
                         src.Recipe
                     ));
 
+            
+            /// ShoppingItem
+            
             CreateMap<ShoppingItemDto, ShoppingItem>()
                 .ForMember(dest => dest.Ingredient,
                 opt => opt.MapFrom(src => src.Ingredient))

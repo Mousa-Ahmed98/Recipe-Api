@@ -1,16 +1,19 @@
-﻿using Application.Interfaces;
-using Core;
-using Core.Entities;
-using Infrastructure.Common;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+
+using Core.CustomModels;
+using Core.Entities;
+using Core.Constants;
+using Infrastructure.Common;
+
+using Application.Interfaces;
 
 namespace Infrastructure.Repositories.Implementation
 {
@@ -23,7 +26,7 @@ namespace Infrastructure.Repositories.Implementation
             _userManager = userManager;
         }
 
-        public async Task<RegisterResponse> RegisterAsync(RegisterModel model)
+        public async Task<RegisterResponse> RegisterAsync(RegisterRequest model)
         {
             if (await _userManager.FindByNameAsync(model.UserName) != null)
                 return new RegisterResponse { Message = "Username is already used." };
@@ -66,9 +69,9 @@ namespace Infrastructure.Repositories.Implementation
             };
         }
 
-        public async Task<AuthModel> TokenRequestAsync(TokenRequestModel model)
+        public async Task<AuthResponse> TokenRequestAsync(TokenRequest model)
         {
-            var authModel = new AuthModel();
+            var authModel = new AuthResponse();
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             if(user == null || !await _userManager.CheckPasswordAsync(user, model.Password))

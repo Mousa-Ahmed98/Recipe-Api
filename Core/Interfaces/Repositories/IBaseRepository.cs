@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Interfaces
+namespace Core.Interfaces.Repositories
 {
     public interface IBaseRepository<TEntity> where TEntity : class
     {
@@ -22,9 +20,8 @@ namespace Core.Interfaces
         void DeleteRange(IEnumerable<TEntity> entities);
         void Update(TEntity entityToUpdate);
         void UpdateRange(IEnumerable<TEntity> entities);
-
         Task<int> SaveChangesAsync();
-        void SetUserId(string userId);
 
+        void SetUserId(string userId);
     }
 }

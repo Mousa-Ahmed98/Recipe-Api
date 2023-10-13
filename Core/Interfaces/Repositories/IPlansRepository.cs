@@ -1,9 +1,8 @@
 ﻿using Core.Entities;
-using Core.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories.Interfaces
+namespace Core.Interfaces.Repositories
 {
     public interface IPlansRepository : IBaseRepository<Plan>
     {

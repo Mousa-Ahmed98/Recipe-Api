@@ -1,10 +1,10 @@
-﻿using Core.Entities;
-using Core.Enums;
-using Core.Interfaces;
-using Infrastructure.CustomModels;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories.Interfaces
+using Core.Common;
+using Core.Entities;
+using Core.Enums;
+
+namespace Core.Interfaces.Repositories
 {
     public interface INotificationsRepository : IBaseRepository<Notification>
     {

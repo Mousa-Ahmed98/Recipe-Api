@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Builder;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
-using Core;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Core.Constants;
 
 namespace Infrastructure.Data.DBInitializer
 {
