@@ -18,6 +18,17 @@ namespace Inpastructure.Configurations
             builder.Property(p => p.Description)
                 .HasMaxLength(800);
 
+
+            builder.Property(p => p.NumberOfRatings)
+                .HasDefaultValue(0);
+            
+            builder.Property(p => p.TotalRatings)
+                .HasDefaultValue(0);
+
+            builder.Property(p => p.AverageRating)
+                .HasDefaultValue(5);
+
+
             builder.HasOne(r => r.Category)
                 .WithMany(c => c.Recipes)
                 .HasForeignKey(r => r.CategoryId)
