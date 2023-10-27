@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 using Core.CustomModels;
@@ -20,10 +21,14 @@ namespace Infrastructure.Repositories.Implementation
     public class AuthService : IAuthService
     {
         private readonly UserManager<ApplicationUser> _userManager;
-
-        public AuthService(UserManager<ApplicationUser> userManager)
+        private readonly TokenConfiguration _tokenConfiguration;
+        public AuthService(
+            UserManager<ApplicationUser> userManager,
+            IOptions<TokenConfiguration> tokenConfiguration
+            )
         {
             _userManager = userManager;
+            _tokenConfiguration = tokenConfiguration.Value;
         }
 
         public async Task<RegisterResponse> RegisterAsync(RegisterRequest model)
@@ -71,32 +76,38 @@ namespace Infrastructure.Repositories.Implementation
 
         public async Task<AuthResponse> TokenRequestAsync(TokenRequest model)
         {
-            var authModel = new AuthResponse();
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             if(user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
             {
-                authModel.Message = "Incorrect email or password.";
-                return authModel;
+                return new AuthResponse
+                {
+                    Message = "Incorrect email or password."
+                };
             }
+
             var jwtSecToken = await CreateJwtToken(user);
             var roles = await _userManager.GetRolesAsync(user);
-            authModel.IsAuthenticated = true;
-            authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecToken);
-            authModel.Message = "Success! Access granted.";
-            authModel.UserId = user.Id;
-            authModel.Email = user.Email;
-            authModel.FirstName = user.FirstName;
-            authModel.LastName = user.LastName;
-            authModel.UserName = user.UserName;
-            authModel.Expiration = jwtSecToken.ValidTo;
-            authModel.Role = roles.FirstOrDefault() ?? "";
 
+            var res = new AuthResponse()
+            {
+                IsAuthenticated = true,
+                Message = "Success! Access granted.",
+                
+                UserId = user.Id,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = roles.FirstOrDefault() ?? "",
+                Token = new JwtSecurityTokenHandler().WriteToken(jwtSecToken),
+                Expiration = jwtSecToken.ValidTo
+            };
 
-            return authModel;
+            return res;
         }
 
-        private async Task<JwtSecurityToken> CreateJwtToken(ApplicationUser user)
+        public async Task<SecurityToken> CreateJwtToken(ApplicationUser user)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);
             var roles = await _userManager.GetRolesAsync(user);
@@ -110,23 +121,28 @@ namespace Infrastructure.Repositories.Implementation
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.NameId, user.Id),
-                new Claim("username", user.UserName),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("username", user.UserName),
             }
             .Union(userClaims)
             .Union(roleClaims);
 
+            var key = Encoding.ASCII.GetBytes(_tokenConfiguration.Secret);
+            SigningCredentials credentials = new SigningCredentials(
+                new SymmetricSecurityKey(key), _tokenConfiguration.Algorithm
+                );
+            
+            var expiryDate = DateTime.UtcNow
+                .AddMinutes(_tokenConfiguration.DurationInMinutes);
 
-            var authSecretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("anscna@@#as321AaAcEEE37$%**$#2ffr@#fvf^(gkoeLAD8"));
-            SigningCredentials credentials = new SigningCredentials(authSecretKey, SecurityAlgorithms.HmacSha256);
-            JwtSecurityToken token = new JwtSecurityToken(
-                issuer: "https://localhost:3000",
-                audience: "https://localhost:4200",
-                expires: DateTime.Now.AddHours(3),
+            JwtSecurityToken token = new (
+                issuer: _tokenConfiguration.Issuer,
+                audience: _tokenConfiguration.Audience,
+                expires: expiryDate,
                 claims: claims,
                 signingCredentials: credentials
-                );
+            );
 
             return token;
         }
