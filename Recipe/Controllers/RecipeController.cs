@@ -1,22 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
-using AutoMapper;
 
-using Core.Entities;
 using Core.Common;
 using Core.CustomModels;
-using Core.Interfaces.Repositories;
 using Infrastructure.Exceptions;
-using Infrastructure.Exceptions.Recipe;
-using Application.Interfaces;
 using Application.DTOs.Request;
 using Application.DTOs.Response;
-using Microsoft.AspNetCore.Http;
+using Application.Interfaces.DomainServcies;
 
 namespace RecipeApi.Controllers
 {
@@ -25,30 +18,14 @@ namespace RecipeApi.Controllers
     [Route("api/[controller]")]
     public class RecipeController : ControllerBase
     {
-        private readonly IRecipeRepository _recipeRepository;
-        private readonly IBaseRepository<Category> _categoryRepository;
-        private readonly IMapper _mapper;
-        private readonly IUserSession _session;
-        private readonly IImageService _imageService;
+        private readonly IRecipesService _recipeService;
 
-        public RecipeController(IRecipeRepository recipeRepository,
-            IBaseRepository<Category> categoryRepository,
-            IImageService imageService,
-            IUserSession session,
-            IMapper mapper
+        public RecipeController(
+            IRecipesService recipeService
             )
         {
-            _recipeRepository = recipeRepository;
-            _mapper = mapper;
-            _categoryRepository = categoryRepository;
-            _session = session;
-            if (_session.IsAuthenticated)
-            {
-                _recipeRepository.SetUserId(_session.UserId);
-            }
-            _imageService = imageService;
+            _recipeService = recipeService;
         }
-
 
         [HttpGet]
         [AllowAnonymous]
@@ -57,11 +34,7 @@ namespace RecipeApi.Controllers
             [FromQuery] GetRecipeRequest request
             )
         {
-            var res = await _recipeRepository.GetRecipesSummary(
-                request.CurrentPage,
-                request.PageSize,
-                request.Category
-                );
+            var res = await _recipeService.GetRecipesSummary(request);
 
             return res;
         }
@@ -75,11 +48,9 @@ namespace RecipeApi.Controllers
         {
             try
             {
-                var res = await _recipeRepository.GetOneById(id);
+                var res = await _recipeService.GetOneById(id);
 
-                return Ok( 
-                    _mapper.Map<RecipeResponse>(res)
-                    );
+                return Ok( res );
 
             }catch (NotFoundException ex)
             {
@@ -93,29 +64,24 @@ namespace RecipeApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddRecipe([FromBody] RecipeRequest recipeRequest)
         {
-            // soon :: FluentValidation
-            string validationMessage = recipeRequest.Validata();
-            if (validationMessage == "")
+            try
             {
-                var recipe = _mapper.Map<Recipe>(recipeRequest);
-                recipe.AuthorId = _session.UserId;
-
-                if (recipeRequest.ImageData != null)
+                // soon :: FluentValidation
+                string validationMessage = recipeRequest.Validata();
+                if (validationMessage == "")
                 {
-                    var imageName = await _imageService
-                        .SaveImageAsync(recipeRequest.ImageData, recipeRequest.Name);
-                    recipe.ImageName = imageName;
+                    var NewRecipe = await _recipeService.CreateNewRecipe(recipeRequest);
+                
+                    return CreatedAtAction(nameof(AddRecipe), NewRecipe);
                 }
-
-                var newRecipe = await _recipeRepository.CreateNewRecipe(recipe);
-
-                return CreatedAtAction(
-                    nameof(AddRecipe), _mapper.Map<RecipeResponse>(newRecipe)
-                    );
+                else
+                {
+                    return BadRequest(validationMessage);
+                }
             }
-            else
+            catch (BadRequestException ex)
             {
-                return BadRequest(validationMessage);
+                return NotFound(ex.Message);
             }
         }
 
@@ -129,42 +95,17 @@ namespace RecipeApi.Controllers
                 var validationStr = recipeRequest.Validata();
                 if(validationStr != "") return BadRequest(validationStr);
 
-                var existingRecipe = await _recipeRepository.GetById(id);
+                var res = await _recipeService.UpdateRecipe(id, recipeRequest);
 
-                if (existingRecipe == null)
-                {
-                    throw new RecipeNotFoundException(id);
-                }
-
-                if (existingRecipe.AuthorId != _session.UserId)
-                {
-                    throw new UnAuthorizedException();
-                }
-
-                var updatedRecipe = _mapper.Map<Recipe>(recipeRequest);
-
-                if (!string.IsNullOrEmpty(recipeRequest.ImageData))
-                {
-                    var imageName = await _imageService
-                        .SaveImageAsync(recipeRequest.ImageData, recipeRequest.Name);
-                    updatedRecipe.ImageName = imageName;
-                }
-                else
-                {
-                    updatedRecipe.ImageName = existingRecipe.ImageName;
-                }
-                
-                updatedRecipe.Id = id;
-                updatedRecipe.AuthorId = _session.UserId;
-                var res = await _recipeRepository.UpdateRecipe(updatedRecipe);
-
-                return CreatedAtAction(
-                    nameof(UpdateRecipe), _mapper.Map<RecipeResponse>(res)
-                    );
+                return CreatedAtAction(nameof(UpdateRecipe), res);
             }
             catch (NotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (UnAuthorizedException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (BadRequestException ex)
             {
@@ -181,7 +122,7 @@ namespace RecipeApi.Controllers
         {
             try
             {
-                await _recipeRepository.RemoveRecipeById(id);
+                await _recipeService.RemoveRecipeById(id);
 
                 return NoContent();
             }
@@ -203,14 +144,8 @@ namespace RecipeApi.Controllers
             [FromQuery] FilteredRecipeRequest request
             )
         {
-            List<string> filterIngredients = request.Ingredients.Split(',').ToList();
-
-            var res = await _recipeRepository.FilterByIngredients(
-                request.CurrentPage,
-                request.PageSize,
-                filterIngredients
-                );
-
+            var res = await _recipeService.FilterByIngredients(request);
+            
             return Ok(res);
         }
         
@@ -221,9 +156,7 @@ namespace RecipeApi.Controllers
             [FromQuery] string query, [FromQuery] PaginatedRequest request
             )
         {
-            var res = await _recipeRepository.SearchRecipes(
-                query, request.CurrentPage, request.PageSize
-                );
+            var res = await _recipeService.SearchRecipes(query, request);
 
             return Ok(res);
         }
@@ -239,7 +172,7 @@ namespace RecipeApi.Controllers
         {
             try 
             { 
-                await _recipeRepository.AddRecipeToFavourites(id);
+                await _recipeService.AddRecipeToFavourites(id);
                 
                 return Created(nameof(AddToFavourites), null);
             }
@@ -263,7 +196,7 @@ namespace RecipeApi.Controllers
         {
             try
             {
-                await _recipeRepository.RemoveRecipeFromFavourites(id);
+                await _recipeService.RemoveRecipeFromFavourites(id);
 
                 return Created(nameof(RemoveFromFavourites), null);
             }

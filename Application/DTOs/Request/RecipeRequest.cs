@@ -1,5 +1,4 @@
 ﻿using Application.DTOs.Common;
-using Core.Entities;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 

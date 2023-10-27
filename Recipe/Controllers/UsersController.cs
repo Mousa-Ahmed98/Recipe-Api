@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-using Core.Interfaces.Repositories;
+using Core.CustomModels;
 using Infrastructure.Exceptions;
-using Application.Interfaces;
 using Application.DTOs.Request;
+using Application.Interfaces.DomainServices;
+using Application.Interfaces.DomainServcies;
 
 namespace RecipeApi.Controllers
 {
@@ -16,18 +17,16 @@ namespace RecipeApi.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly IUsersRepository _usersRepository;
-        private readonly IRecipeRepository _RecipeRepository;
-        private readonly IUserSession _session;
+        private readonly IUserService _userService;
+        private readonly IRecipesService _recipeService;
 
         public UsersController(
-            IUsersRepository usersRepository,
-            IUserSession session,
-            IRecipeRepository recipeRepository)
+            IUserService userService,
+            IRecipesService recipeService
+            )
         {
-            _usersRepository = usersRepository;
-            _RecipeRepository = recipeRepository;
-            _session = session;
+            _userService = userService;
+            _recipeService = recipeService;
         }
 
         [HttpGet]
@@ -38,8 +37,7 @@ namespace RecipeApi.Controllers
         {
             try
             {
-                var res = await _usersRepository
-                    .GetUsers(_session.UserId, request.CurrentPage, request.PageSize);
+                var res = await _userService.GetUsers(request);
 
                 return Ok(res);
             }
@@ -56,12 +54,12 @@ namespace RecipeApi.Controllers
         [HttpGet("{username}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetByUsername([FromRoute] string username)
+        public async Task<ActionResult<UserResponse>> GetByUsername([FromRoute] string username)
         {
             try
             {
-                var res = await _usersRepository.GetByUsername(_session.UserId, username);
-            
+                var res = await _userService.GetByUsername(username);
+
                 return Ok(res);
             }
             catch(NotFoundException ex)
@@ -78,7 +76,7 @@ namespace RecipeApi.Controllers
         {
             try
             {
-                await _usersRepository.FollowUser(_session.UserId, username);
+                await _userService.FollowUser(username);
             
                 return CreatedAtAction(nameof(Follow), null);
             }
@@ -100,7 +98,7 @@ namespace RecipeApi.Controllers
         {
             try
             {
-                await _usersRepository.UnfollowUser(_session.UserId, username);
+                await _userService.UnfollowUser(username);
 
                 return CreatedAtAction(nameof(UnFollow), null);
             }
@@ -124,14 +122,8 @@ namespace RecipeApi.Controllers
         {
             try
             {
-                var res = await _RecipeRepository
-                    .GetRecipesByUsername(
-                        _session.UserId,
-                        username, 
-                        request.CurrentPage, 
-                        request.PageSize
-                    );
-
+                var res = await _recipeService.GetRecipesByUsername(username, request);
+                
                 return Ok(res);
             }
             catch (NotFoundException ex)

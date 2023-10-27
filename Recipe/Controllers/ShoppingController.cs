@@ -37,7 +37,7 @@ namespace RecipeApi.Controllers
         public IActionResult AddShopItem(ShoppingItemDto itemDto)
         {
             var shoppingItem = _mapper.Map<ShoppingItem>(itemDto);
-            shoppingRepository.Add(shoppingItem);
+            shoppingRepository.AddAsync(shoppingItem);
             return Ok(shoppingItem);
         }
 
@@ -45,7 +45,7 @@ namespace RecipeApi.Controllers
         public IActionResult UpdateShopItem(UpdateShoppingItemDto itemDto)
         {
             
-            var shoppingItem = shoppingRepository.GetById(itemDto.Id).Result;
+            var shoppingItem = shoppingRepository.GetByIdAsync(itemDto.Id).Result;
             shoppingItem.IsPurchased = itemDto.isPurchased;
             shoppingRepository.Update(shoppingItem);
             return Ok(shoppingItem);

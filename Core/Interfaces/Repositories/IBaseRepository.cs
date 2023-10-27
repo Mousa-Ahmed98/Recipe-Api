@@ -7,21 +7,23 @@ namespace Core.Interfaces.Repositories
 {
     public interface IBaseRepository<TEntity> where TEntity : class
     {
+        Task<TEntity?> GetByIdAsync(int id);
         Task<IEnumerable<TEntity>> GetAsync(
             Expression<Func<TEntity, bool>> filter = null!,
             string includeProperties = "",
             bool tracked = false
             );
-        void Add(TEntity entity);
-        void AddRange(IEnumerable<TEntity> entities);
-        void DeleteById(int id);
-        Task<TEntity> GetById(int id);
-        void Delete(TEntity entityToDelete);
-        void DeleteRange(IEnumerable<TEntity> entities);
+        
+        Task AddAsync(TEntity entity);
+        Task AddRangeAsync(IEnumerable<TEntity> entities);
+
         void Update(TEntity entityToUpdate);
         void UpdateRange(IEnumerable<TEntity> entities);
-        Task<int> SaveChangesAsync();
 
-        void SetUserId(string userId);
+        Task DeleteById(int id);
+        void Delete(TEntity entityToDelete);
+        void DeleteRange(IEnumerable<TEntity> entities);
+
+        Task<int> SaveChangesAsync();
     }
 }

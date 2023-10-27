@@ -1,13 +1,12 @@
-﻿using System.Linq.Expressions;
-using System.Threading.Tasks;
+﻿using System;
 using System.Linq;
-using System;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-using Infrastructure.Exceptions;
-using Infrastructure.Data;
 using Core.Interfaces.Repositories;
+using Infrastructure.Data;
 
 namespace Infrastructure.Repositories.Implementation
 {
@@ -15,7 +14,6 @@ namespace Infrastructure.Repositories.Implementation
     {
         internal StoreContext _context;
         internal DbSet<TEntity> _dbSet;
-        internal string _userId = null!;
         public BaseRepository(StoreContext context)
         {
             _context = context;
@@ -44,46 +42,41 @@ namespace Infrastructure.Repositories.Implementation
             
             return await query.ToListAsync();
         }
-
-        public async Task<TEntity> GetById(int id)
+        
+        public async Task<TEntity?> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
         }
 
-        public virtual void Add(TEntity entity)
+        public virtual async Task AddAsync(TEntity entity)
         {
-            _dbSet.Add(entity);
-            _context.SaveChanges();
-        }
-        public void AddRange(IEnumerable<TEntity> entities)
-        {
-            _context.AddRange(entities);
-            _context.SaveChanges();
+            await _dbSet.AddAsync(entity);
         }
 
-        public async virtual void DeleteById(int id)
+        public async Task AddRangeAsync(IEnumerable<TEntity> entities)
         {
-            TEntity entityToDelete = _dbSet.Find(id);
+            await _context.AddRangeAsync(entities);
+        }
+
+        public virtual async Task DeleteById(int id)
+        {
+            TEntity entityToDelete = await _dbSet.FindAsync(id);
             Delete(entityToDelete);
-            await SaveChangesAsync();
         }
 
-        public async virtual void Delete(TEntity entityToDelete)
+        public virtual void Delete(TEntity entityToDelete)
         {
             _context.Set<TEntity>().Remove(entityToDelete);
-            _context.SaveChanges();
         }
 
-        public async void DeleteRange(IEnumerable<TEntity> entities)
+        public void DeleteRange(IEnumerable<TEntity> entities)
         {
             _context.RemoveRange(entities);
-            await SaveChangesAsync();
         }
 
         public virtual void Update(TEntity entityToUpdate)
         {
             _context.Update(entityToUpdate);
-            _context.SaveChanges();
         }
 
         public void UpdateRange(IEnumerable<TEntity> entities)
@@ -96,13 +89,5 @@ namespace Infrastructure.Repositories.Implementation
             return await _context.SaveChangesAsync();
         }
 
-        // just for now 
-        // we need a service to be the middle point between the controller and repository
-        // actually at this point repositories are used as a mixed purpose of an actual repository
-        // and as a service!
-        public void SetUserId(string userId)
-        {
-            _userId = userId;
-        }
     }
 }
