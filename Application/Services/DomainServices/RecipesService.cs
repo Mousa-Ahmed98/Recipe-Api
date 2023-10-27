@@ -26,18 +26,21 @@ namespace Application.Services.DomainServices
         private readonly IUserSession _session;
         private readonly IImageService _imageService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly INotificationManager _notificationManager;
 
         public RecipesService(
             IMapper mapper,
             IUserSession session,
             IImageService imageService,
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            INotificationManager notificationManager
             )
         {
             _mapper = mapper;
             _session = session;
             _imageService = imageService;
             _unitOfWork = unitOfWork;
+            _notificationManager = notificationManager;
         }
 
         public async Task<PaginatedList<RecipeSummary>> GetRecipesSummary(GetRecipeRequest request)
@@ -119,9 +122,16 @@ namespace Application.Services.DomainServices
 
             await _unitOfWork.RecipeRepository.AddAsync(newRecipe);
             await _unitOfWork.SaveAsync();
+
+            // notify followers
+            var followers = await _unitOfWork.FollowsRepoisitory.GetFollowersByUserId(newRecipe.AuthorId);
             
-            // we won't wait for this to complete. recipe now exists & it can complete on its own.
-            _ = NotifyFollowers(newRecipe.Id, newRecipe.AuthorId);
+            // but we won't wait for this to complete. recipe now exists & it can complete on its own.
+            _ = _notificationManager.CreateMany(
+                usersIds: followers.Select(x => x.Id).ToList(), 
+                recipe: _mapper.Map<RecipeSummary>(newRecipe),
+                type: NotificationType.NewPost
+                );
             
             return _mapper.Map<RecipeResponse>(newRecipe);
         }
@@ -302,20 +312,5 @@ namespace Application.Services.DomainServices
             await _unitOfWork.SaveAsync();
         }
 
-        private async Task NotifyFollowers(int recipeId, string authorId)
-        {
-            var followers = await _unitOfWork.FollowsRepoisitory.GetFollowersByUserId(authorId);
-
-            foreach (var follower in followers)
-            {
-                await _unitOfWork.NotificationsRepository.AddNewNotification(
-                    follower.Id, 
-                    recipeId, 
-                    NotificationType.NewPost
-                    );
-            }
-
-            await _unitOfWork.SaveAsync();
-        }
     }
 }
