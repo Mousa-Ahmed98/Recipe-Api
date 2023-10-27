@@ -13,6 +13,7 @@ namespace Core.Interfaces
         INotificationsRepository NotificationsRepository { get; }
         IPlansRepository PlansRepository { get; }
         IFollowsRepository FollowsRepoisitory { get; }
+        IRatingsRepository RatingRepository { get; }
 
         Task<bool> SaveAsync();
     }

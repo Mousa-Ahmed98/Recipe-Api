@@ -22,6 +22,7 @@ namespace Infrastructure.Repositories.Implementation
                 .Include(x => x.Category)
                 .Include(x => x.Steps)
                 .Include(x => x.Ingredients)
+                .Include(x => x.Ratings)
                 .Include(x => x.Plans
                     .Where(p => userId != null && p.UserId == userId))
                 .Include(x => x.Author);
@@ -39,9 +40,8 @@ namespace Infrastructure.Repositories.Implementation
             return res;
         }
 
-        public async Task<PaginatedList<RecipeSummary>> GetRecipesSummary(
-            string? userId, int pageNumber, int pageSize, string? category = "Main"
-            )
+        public async Task<PaginatedList<RecipeSummary>> GetRecipesSummary
+            (string? userId, int pageNumber, int pageSize, string? category = "Main")
         {
             var query = _context.Recipes.AsQueryable();
 
@@ -64,6 +64,7 @@ namespace Infrastructure.Repositories.Implementation
                     Id = recipe.Id,
                     Name = recipe.Name,
                     ImageName = recipe.ImageName,
+                    AverageRating = recipe.AverageRating,
                     InFavourites = userId != null && _context.FavouriteRecipes
                         .Any(f => f.RecipeId == recipe.Id && f.UserId == userId)
                 });
@@ -72,9 +73,8 @@ namespace Infrastructure.Repositories.Implementation
                 .CreateAsync(res, pageNumber, pageSize);
         }
 
-        public async Task<PaginatedList<RecipeSummary>> FilterByIngredients(
-            string? userId, int pageNumber, int pageSize, List<string> filterIngredients
-             )
+        public async Task<PaginatedList<RecipeSummary>> FilterByIngredients
+            (string? userId, int pageNumber, int pageSize, List<string> filterIngredients)
         {
             if (!filterIngredients.Any())
             {
@@ -107,13 +107,14 @@ namespace Infrastructure.Repositories.Implementation
             var filteredRecipes = _context.Recipes
                 .Where(r => filteredRecipeIds.Contains(r.Id))
                 .Distinct()
-                .Select(x => new RecipeSummary
+                .Select(r => new RecipeSummary
                 {
-                    Id = x.Id,
-                    Name = x.Name,
-                    ImageName = x.ImageName,
+                    Id = r.Id,
+                    Name = r.Name,
+                    ImageName = r.ImageName,
+                    AverageRating = r.AverageRating,
                     InFavourites = userId != null && _context.FavouriteRecipes
-                        .Any(f => f.RecipeId == x.Id && f.UserId == userId)
+                        .Any(f => f.RecipeId == r.Id && f.UserId == userId)
                 });
 
             return await PaginatedList<RecipeSummary>.CreateAsync
@@ -145,6 +146,7 @@ namespace Infrastructure.Repositories.Implementation
                     Id = r.Id,
                     Name = r.Name,
                     ImageName = r.ImageName,
+                    AverageRating = r.AverageRating,
                     InFavourites = userId != null && _context.FavouriteRecipes
                         .Any(f => f.RecipeId == r.Id && f.UserId == userId)
                 });
@@ -181,6 +183,7 @@ namespace Infrastructure.Repositories.Implementation
                     Id = r.Id,
                     Name = r.Name,
                     ImageName = r.ImageName,
+                    AverageRating = r.AverageRating,
                     InFavourites = true
                 });
 

@@ -24,6 +24,7 @@ namespace Infrastructure.UnitOfWork.Implementation
             NotificationsRepository = new NotificationsRepository(dbContext);
             PlansRepository = new PlansRepository(dbContext);
             FollowsRepoisitory = new FollowsRepository(dbContext);
+            RatingRepository = new RatingsRepository(dbContext);
         }
 
         public ICategoriesRepository CategoriesRepository { get; }
@@ -34,6 +35,7 @@ namespace Infrastructure.UnitOfWork.Implementation
         public INotificationsRepository NotificationsRepository { get; }
         public IPlansRepository PlansRepository { get; }
         public IFollowsRepository FollowsRepoisitory { get; }
+        public IRatingsRepository RatingRepository { get; }
        
         public async Task<bool> SaveAsync() 
         {
