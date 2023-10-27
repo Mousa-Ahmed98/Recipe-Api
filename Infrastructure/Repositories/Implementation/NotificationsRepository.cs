@@ -17,7 +17,8 @@ namespace Infrastructure.Repositories.Implementation
         public NotificationsRepository(StoreContext context) : base(context)
         {
         }
-        public async Task<PaginatedList<Notification>> GetRecentNotifications(string userId, int pageNumber, int pageSize)
+        public async Task<PaginatedList<Notification>> GetRecentNotifications
+            (string userId, int pageNumber, int pageSize)
         {
             var query = _context.Notifications
                 .Where(x => x.UserId.Equals(userId))
@@ -38,26 +39,35 @@ namespace Infrastructure.Repositories.Implementation
 
         public async Task AddNewNotification(string userId, int recipeId, NotificationType type)
         {
-            var LastUnread = await _context.Notifications
-                .Where(x => x.RecipeId == recipeId && x.Type == type && x.ReadAt == null)
-                .FirstOrDefaultAsync();
+            // just to prevent adding redundant and dublicate notifications 
+            // we can later add a number field to Notification entity
+            // and increase it as the user receives new comments or ratings.
 
-            if(LastUnread != null)
+            if (type == NotificationType.Comment || type == NotificationType.Rating)
             {
-                LastUnread.CreatedAt = DateTime.Now;
-                _context.Notifications.Update(LastUnread);
+                var LastUnread = await _context.Notifications
+                    .Where(x => x.RecipeId == recipeId && x.Type == type && x.ReadAt == null)
+                    .FirstOrDefaultAsync();
+
+                if(LastUnread != null)
+                {
+                    LastUnread.CreatedAt = DateTime.Now;
+                    _context.Notifications.Update(LastUnread);
+                    
+                    return;
+                }
             }
             else
             {
-                var newNotification = new Notification { 
-                    RecipeId = recipeId, 
-                    Type = type,
-                    UserId = userId,
-                };
-                await _context.Notifications.AddAsync(newNotification);
+                _context.Notifications.Add( 
+                    new Notification
+                    {
+                        RecipeId = recipeId,
+                        Type = type,
+                        UserId = userId,
+                    }
+                );
             }
-
-            await _context.SaveChangesAsync();
         }
     }
 }

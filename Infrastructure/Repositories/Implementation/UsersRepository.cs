@@ -4,10 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 using Core.Entities;
 using Core.Interfaces.Repositories;
-using Core.CustomModels;
 using Core.Common;
 using Infrastructure.Data;
-using Infrastructure.Exceptions.User;
 
 namespace Infrastructure.Repositories.Implementation
 {
@@ -17,9 +15,10 @@ namespace Infrastructure.Repositories.Implementation
         {
         }
 
-        public async Task<PaginatedList<UserResponse>> GetUsers(string userId, int pageNumber, int pageSize)
+        public async Task<PaginatedList<ApplicationUser>> GetUsers
+            (string? userId, int pageNumber, int pageSize)
         {
-            var query = _context.Users.Select(x => new UserResponse
+            var query = _context.Users.Select(x => new ApplicationUser
             {
                 FirstName= x.FirstName,
                 LastName= x.LastName,
@@ -33,14 +32,15 @@ namespace Infrastructure.Repositories.Implementation
                     .Count(f => f.FollowerId == x.Id),
             });
 
-            return await PaginatedList<UserResponse>.CreateAsync(query, pageNumber, pageSize);
+            return await PaginatedList<ApplicationUser>.CreateAsync(query, pageNumber, pageSize);
         }
 
-        public async Task<UserResponse> GetByUsername(string userId, string username)
+        public async Task<ApplicationUser?> GetByUsername(string? userId, string username)
         {
             var user = await _context.Users
-                .Select(x => new UserResponse
+                .Select(x => new ApplicationUser
                 {
+                    Id = x.Id,
                     FirstName = x.FirstName,
                     LastName = x.LastName,
                     UserName = x.UserName,
@@ -54,60 +54,32 @@ namespace Infrastructure.Repositories.Implementation
                 })
                 .FirstOrDefaultAsync(x => x.UserName == username);
             
-            if (user == null)
-            {
-                throw new UserNotFoundException(username);
-            }
-
             return user;
         }
 
-        public async Task FollowUser(string userId, string username)
+        public async Task AddFollow(string followerId, string followeeId)
         {
-            var followee = await _context.Users.FirstOrDefaultAsync(x => x.UserName == username);
-            
-            if(followee == null)
-            {
-                throw new UserNotFoundException(username);
-            }
-
-            var follow = await _context.Follows
-                .FirstOrDefaultAsync(x => x.FollowerId == userId && x.FolloweeId == followee.Id);
-
-            if(follow != null)
-            {
-                throw new FollowAlreadyExistsException(username);
-            }
-
             var newFollow = new Follow
             {
-                FolloweeId = followee.Id,
-                FollowerId = userId,
+                FolloweeId = followerId,
+                FollowerId = followeeId,
             };
 
             await _context.Follows.AddAsync(newFollow);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task UnfollowUser(string userId, string username)
+        public async Task RemoveFollow(string followerId, string followeeId)
         {
-            var followee = await _context.Users.FirstOrDefaultAsync(x => x.UserName == username);
-
-            if (followee == null)
-            {
-                throw new UserNotFoundException(username);
-            }
-
             var follow = await _context.Follows
-                .FirstOrDefaultAsync(x => x.FollowerId == userId && x.FolloweeId == followee.Id);
-
-            if (follow == null)
-            {
-                throw new FollowDoesntExistException(username);
-            }
+                .FirstAsync(x => x.FollowerId == followerId && x.FolloweeId == followeeId);
 
             _context.Follows.Remove(follow);
-            await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsFollowedBy(string followerId, string followeeId)
+        {
+            return await _context.Follows
+                .AnyAsync(x => x.FollowerId == followerId && x.FolloweeId == followeeId);
         }
     }
 }

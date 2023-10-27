@@ -57,6 +57,9 @@ namespace RecipeApi.Mappings
                     ));
 
             CreateMap<Recipe, RecipeSummary>();
+            
+            CreateMap<IngredientDto, Ingredient>();
+            CreateMap<StepDto, Step>();
 
             CreateMap<Category, CategoryResponse>();
 
@@ -73,6 +76,7 @@ namespace RecipeApi.Mappings
             /// ApplicationUser
 
             CreateMap<ApplicationUser, UserResponse>();
+            CreateMap<PaginatedList<ApplicationUser>, PaginatedList<UserResponse>>();
 
             /// Plans
 

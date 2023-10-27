@@ -1,11 +1,7 @@
-using System;
 using System.IO;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,18 +9,18 @@ using Microsoft.Extensions.Configuration;
 using Quartz;
 
 using Core.Entities;
-using Core.Interfaces.Repositories;
+using Core.Interfaces;
 
 using Infrastructure.Data;
 using Infrastructure.Data.DBInitializer;
-using Infrastructure.Repositories.Implementation;
+using Infrastructure.UnitOfWork.Implementation;
 
-using Application.UserSession;
 using Application.Services;
 using Application.Interfaces;
 
 using RecipeApi.Mappings;
 using RecipeApi.Configurations;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,77 +40,26 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.User.RequireUniqueEmail = true)
     .AddEntityFrameworkStores<StoreContext>();
 
-// Register Infrasctructure's Repositories
-builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
-builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
-builder.Services.AddScoped<IPlansRepository, PlansRepository>();
-builder.Services.AddScoped<IUsersRepository, UsersRepository>();
-builder.Services.AddScoped<INotificationsRepository, NotificationsRepository>();
-
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddDomainServices();
 
-// Configure Authentication
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IUserSession, Session>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+// configure authentication
+builder.Services.ConfigureAuthentication(builder.Configuration);
 
-//Configuring Jwt Bearer
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.SaveToken = true;
-    options.RequireHttpsMetadata = false;
-    options.TokenValidationParameters = new TokenValidationParameters()
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidIssuer = "https://localhost:3000",
-        ValidAudience = "https://localhost:4200",
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes("anscna@@#as321AaAcEEE37$%**$#2ffr@#fvf^(gkoeLAD8")
-            )
-    };
-});
-
-
-// Configure Quartz.NET scheduler
-builder.Services.AddQuartz(q =>
-{
-    // Add the job and specify the job type
-    q.AddJob<PlansReminder>(j =>
-        j.WithIdentity(nameof(PlansReminder), "group1")
-        );
-
-    // Configure the trigger for the job
-    q.AddTrigger(t => t
-        .ForJob(nameof(PlansReminder), "group1")
-        .StartNow()
-        .WithSimpleSchedule(s => s
-            .WithInterval(TimeSpan.FromDays(1)) // everyday 
-            .RepeatForever()));
-});
-
-// Configure the Quartz.NET hosted service
-builder.Services.AddQuartzHostedService(options =>
-{
-    options.WaitForJobsToComplete = true;
-    options.AwaitApplicationStarted = true;
-});
+// configure Quartz.NET
+builder.Services.ConfigureQuartz();
 
 // Add Automapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+var origins = builder.Configuration.GetSection("CorsOrigins").Value;
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
         builder =>
         {
-            builder.WithOrigins("http://localhost:4200")
+            builder.WithOrigins(origins!)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()

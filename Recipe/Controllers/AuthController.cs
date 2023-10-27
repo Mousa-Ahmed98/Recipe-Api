@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+
 using Core.Entities;
 using Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 
 
 namespace RecipeApi.Controllers

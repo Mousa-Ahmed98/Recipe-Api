@@ -2,14 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using AutoMapper;
 
-using Application.DTOs.Response;
-using Core.Interfaces.Repositories;
 using Core.CustomModels;
 using Core.Common;
-using Application.Interfaces;
+using Application.DTOs.Response;
 using Application.DTOs.Request;
+using Application.Interfaces.DomainServcies;
+using Application.Interfaces.DomainServices;
 
 namespace RecipeApi.Controllers
 {
@@ -18,74 +17,53 @@ namespace RecipeApi.Controllers
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
-        private readonly IRecipeRepository _recipeRepository;
-        private readonly INotificationsRepository _nofificationsRepository;
-        private readonly IUserSession _session;
-        private readonly IMapper _mapper;
+        private readonly IRecipesService _recipeService;
+        private readonly INotificationsService _nofificationsService;
 
         public AccountController(
-            IRecipeRepository recipeRepository,
-            INotificationsRepository nofificationsRepository,
-            IUserSession session,
-            IMapper mapper
+            IRecipesService recipeRepository,
+            INotificationsService nofificationsRepository
             )
         {
-            _recipeRepository = recipeRepository;
-            _session = session;
-            _mapper = mapper;
-            _nofificationsRepository = nofificationsRepository;
+            _recipeService = recipeRepository;
+            _nofificationsService = nofificationsRepository;
         }
 
         [HttpGet("my-recipes")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<PaginatedList<RecipeSummary>> GetRelatedRecipes(
+        public async Task<ActionResult<PaginatedList<RecipeSummary>>> GetRelatedRecipes(
             [FromQuery] PaginatedRequest request
             )
         {
-            var res = await _recipeRepository.GetRecipesByUsername(
-                _session.UserId,
-                _session.Username,
-                request.CurrentPage,
-                request.PageSize
-                );
+            var res = await _recipeService.GetMyRecipesAsync(request);
 
-            return res;
+            return Ok(res);
         }
-
 
         [HttpGet("favourites")]
-        public async Task<PaginatedList<RecipeSummary>> Favourites(
+        public async Task<ActionResult<PaginatedList<RecipeSummary>>> Favourites(
             [FromQuery] PaginatedRequest request
             )
         {
-            var res = await _recipeRepository.GetFavourites(
-                _session.UserId,
-                request.CurrentPage,
-                request.PageSize
-                );
+            var res = await _recipeService.GetFavourites(request);
 
-            return res;
+            return Ok(res);
         }
 
-
         [HttpGet("recent-notifications")]
-        public async Task<PaginatedList<NotificationResponse>> GetNotifications(
+        public async Task<ActionResult<PaginatedList<NotificationResponse>>> GetNotifications(
             [FromQuery] PaginatedRequest request
             )
         {
-            var res = await _nofificationsRepository.GetRecentNotifications(
-                _session.UserId,
-                request.CurrentPage,
-                request.PageSize
-                );
+            var res = await _nofificationsService.GetRecentNotifications(request);
 
-            return _mapper.Map<PaginatedList<NotificationResponse>>( res );
+            return Ok( res );
         }
 
         [HttpPost("read-notifications")]
         public async Task<IActionResult> ReadNotifications()
         {
-            await _nofificationsRepository.ReadRecentNotifications(_session.UserId);
+            await _nofificationsService.ReadRecentNotifications();
 
             return NoContent();
         }

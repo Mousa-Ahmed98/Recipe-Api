@@ -1,16 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 
 using Infrastructure.Exceptions;
 
-using Application.DTOs.Response;
 using Application.DTOs.Request;
-using Microsoft.AspNetCore.Http;
-using Core.Interfaces.Repositories;
-using Application.Interfaces;
+using Application.Interfaces.DomainServices;
 
 namespace RecipeApi.Controllers
 {
@@ -19,29 +15,18 @@ namespace RecipeApi.Controllers
     [Route("api/[controller]")]
     public class PlansController : ControllerBase
     {
-        private readonly IPlansRepository _plansRepository;
-        private readonly IUserSession _session;
-        private readonly IMapper _mapper;
-        public PlansController(
-            IPlansRepository recipeRepository,
-            IUserSession session,
-            IMapper mapper
-            )
+        private readonly IPlansService _plansService;
+        public PlansController(IPlansService plansService)
         {
-            _plansRepository = recipeRepository;
-            _session = session;
-            _mapper = mapper;
-            _plansRepository.SetUserId( _session.UserId );
+            _plansService = plansService;
         }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPlans()
         {
-            var res = await _plansRepository.GetAllPlans();
-
             return Ok(
-                _mapper.Map<List<PlanResponse>> ( res )
+                await _plansService.GetAllPlans()
                 );
         }
 
@@ -56,13 +41,9 @@ namespace RecipeApi.Controllers
         {
             try
             {
-                var res = await _plansRepository.PlanOut(
-                    request.Day, request.RecipeId
-                );
+                var res = await _plansService.PlanOut(request.Day, request.RecipeId);
 
-                return new CreatedResult(nameof(PlanOut),
-                    _mapper.Map<PlanResponse>(res)
-                    );
+                return new CreatedResult(nameof(PlanOut), res);
             }
             catch (UnAuthorizedException ex)
             {
@@ -90,7 +71,7 @@ namespace RecipeApi.Controllers
         {
             try 
             { 
-                var res = await _plansRepository.ChangePlanDate(id, date);
+                await _plansService.ChangePlanDate(id, date);
 
                 return NoContent();
             }
@@ -119,7 +100,7 @@ namespace RecipeApi.Controllers
         {
             try 
             { 
-                var res = await _plansRepository.PlanOff(id);
+                await _plansService.PlanOff(id);
 
                 return NoContent();
             }
