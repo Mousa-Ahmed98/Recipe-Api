@@ -19,12 +19,15 @@ namespace RecipeApi.Controllers
     public class RecipeController : ControllerBase
     {
         private readonly IRecipesService _recipeService;
+        private readonly IRatingsService _ratingsService;
 
         public RecipeController(
-            IRecipesService recipeService
+            IRecipesService recipeService,
+            IRatingsService ratingsService
             )
         {
             _recipeService = recipeService;
+            _ratingsService = ratingsService;
         }
 
         [HttpGet]
@@ -109,7 +112,7 @@ namespace RecipeApi.Controllers
             }
             catch (BadRequestException ex)
             {
-                return NotFound(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -199,6 +202,110 @@ namespace RecipeApi.Controllers
                 await _recipeService.RemoveRecipeFromFavourites(id);
 
                 return Created(nameof(RemoveFromFavourites), null);
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// 
+        /// Recipe Rating
+        /// 
+
+        [HttpGet("{id}/rating")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetRating(
+            [FromRoute] int id, [FromQuery] PaginatedRequest request
+            )
+        {
+            try
+            {
+                var res = await _ratingsService.GetRatings(id, request);
+
+                return Ok(res);
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost("{id}/rating")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> AddRating(
+            [FromRoute] int id, [FromBody] RatingRequest request
+            )
+        {
+            try
+            {
+                var res = await _ratingsService.AddRating(id, request);
+
+                return Created(nameof(AddRating), res);
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPut("{id}/rating")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateRating(
+            [FromRoute] int id, [FromBody] RatingRequest request
+            )
+        {
+            try
+            {
+                var res = await _ratingsService.UpdateRating(id, request);
+
+                return Created(nameof(UpdateRating), res);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnAuthorizedException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpDelete("{id}/rating")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RemoveRating(
+            [FromRoute] int id
+            )
+        {
+            try
+            {
+                await _ratingsService.RemoveRatingById(id);
+
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnAuthorizedException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (BadRequestException ex)
             {
