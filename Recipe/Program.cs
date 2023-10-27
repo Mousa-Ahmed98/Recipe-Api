@@ -20,8 +20,10 @@ using Application.Interfaces;
 
 using RecipeApi.Mappings;
 using RecipeApi.Configurations;
-
-
+using Application.Hubs;
+using Infrastructure.Interfaces;
+using Application.RealTime;
+using Infrastructure.RealTime;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +45,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddDomainServices();
+
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IConnectedUsersManager, ConnectedUsersManager>();
+builder.Services.AddSingleton<INotificationSender, NotificationsSender>();
+builder.Services.AddSingleton<INotificationManager, NotificationManager>();
 
 // configure authentication
 builder.Services.ConfigureAuthentication(builder.Configuration);
@@ -91,6 +98,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHub<NotificationsHub>("/notifications");
 app.MapControllers();
 
 await app.InitDataAsync();
