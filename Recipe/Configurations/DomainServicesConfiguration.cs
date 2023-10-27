@@ -13,6 +13,7 @@ namespace RecipeApi.Configurations
             services.AddScoped<IPlansService, PlansService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<INotificationsService, NotificationsService>();
+            services.AddScoped<IRatingsService, RatingsService>();
         }
     }
 }
