@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +11,6 @@ using Infrastructure.Repositories.Implementation;
 
 using Application.Interfaces;
 using Application.UserSession;
-
 
 namespace RecipeApi.Configurations
 {
@@ -52,6 +52,26 @@ namespace RecipeApi.Configurations
                 opts.SaveToken = true;
                 opts.RequireHttpsMetadata = false;
                 opts.TokenValidationParameters = tokenValidationParams;
+
+                // When using the WebSocket protocol with SignalR, it doesnt include Bearer token as a header
+                // instead, it is appended to the request URL as an 'access_token' query parameter.
+                // here we handle this by getting the token off the request's query 
+                // and set its value to the context.
+                // this helped <3 https://stackoverflow.com/a/57460785 
+                opts.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/notifications")))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             services.AddHttpContextAccessor();
