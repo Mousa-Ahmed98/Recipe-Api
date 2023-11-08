@@ -6,5 +6,6 @@
         public string Name { get; set; }
         public string ImageName { get; set; }
         public bool InFavourites { get; set; }
+        public double AverageRating { get; set; }
     }
 }

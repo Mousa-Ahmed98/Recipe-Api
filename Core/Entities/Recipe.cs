@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Core.Entities
 {
@@ -11,6 +12,10 @@ namespace Core.Entities
         public string? ImageName { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; }
+        public int NumberOfRatings { get; set; }
+        public int TotalRatings { get; set; }
+        public double AverageRating { get; set; }
+        public ICollection<Rating> Ratings { get; set; }
 
         [NotMapped]
         public bool InFavourites { get; set; }

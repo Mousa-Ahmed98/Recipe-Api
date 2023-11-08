@@ -73,6 +73,13 @@ namespace RecipeApi.Mappings
                         src.Order
                     ));
 
+
+            /// Ratings
+            
+            CreateMap<RatingRequest, Rating>();
+            CreateMap<Rating, RatingResponse>();
+            CreateMap<PaginatedList<Rating>, PaginatedList<RatingResponse>>();
+
             /// ApplicationUser
 
             CreateMap<ApplicationUser, UserResponse>();

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Infrastructure.Interfaces;
 using Application.DTOs.Response;
 using Application.Hubs;
+using Application.Interfaces.DomainServcies;
 
 namespace Application.RealTime
 {
