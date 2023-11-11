@@ -213,6 +213,7 @@ namespace RecipeApi.Controllers
         /// Recipe Rating
         /// 
 
+        [AllowAnonymous]
         [HttpGet("{id}/rating")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -295,7 +296,7 @@ namespace RecipeApi.Controllers
         {
             try
             {
-                await _ratingsService.RemoveRatingById(id);
+                await _ratingsService.RemoveRating(id);
 
                 return NoContent();
             }

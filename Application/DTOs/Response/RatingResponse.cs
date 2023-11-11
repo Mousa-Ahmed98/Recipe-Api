@@ -1,4 +1,5 @@
 ﻿using Core.CustomModels;
+using System;
 
 namespace Application.DTOs.Response
 {
@@ -8,5 +9,6 @@ namespace Application.DTOs.Response
         public UserResponse User { get; set; }
         public int NumberOfStars { get; set; }
         public string Content { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

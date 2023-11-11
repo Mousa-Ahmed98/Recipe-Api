@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 using Core.Entities;
 using Core.Enums;
+using Core.CustomModels;
 using Infrastructure.Data;
 using Infrastructure.Interfaces;
+
 using Application.DTOs.Response;
-using System;
-using Microsoft.Extensions.DependencyInjection;
 using Application.Interfaces;
-using Core.CustomModels;
+
 
 namespace Application.RealTime
 {
@@ -17,6 +19,7 @@ namespace Application.RealTime
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly INotificationSender _notificationSender;
+
         public NotificationManager(
             INotificationSender notificationSender,
             IServiceProvider serviceProvider)

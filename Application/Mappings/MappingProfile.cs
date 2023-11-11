@@ -54,6 +54,10 @@ namespace RecipeApi.Mappings
                 .ForMember(dest => dest.Author, opt =>
                     opt.MapFrom(src =>
                         src.Author
+                    ))             
+                .ForMember(dest => dest.UserRating, opt =>
+                    opt.MapFrom(src =>
+                        src.UserRating
                     ));
 
             CreateMap<Recipe, RecipeSummary>();
@@ -77,7 +81,11 @@ namespace RecipeApi.Mappings
             /// Ratings
             
             CreateMap<RatingRequest, Rating>();
-            CreateMap<Rating, RatingResponse>();
+            CreateMap<Rating, RatingResponse>()
+                .ForMember(dest => dest.User, opt =>
+                    opt.MapFrom(src =>
+                        src.User
+                    ));
             CreateMap<PaginatedList<Rating>, PaginatedList<RatingResponse>>();
 
             /// ApplicationUser

@@ -13,6 +13,7 @@ namespace Application.DTOs.Response
         public PlanSummaryResponse Plan { get; set; }
         public CategoryResponse Category { get; set; }
         public List<IngredientDto> Ingredients { get; set; }
+        public RatingResponse UserRating { get; set; }
         public ICollection<RatingResponse> Ratings { get; set; }
         public List<StepDto> Steps { get; set; }
         public UserResponse Author { get; set; }

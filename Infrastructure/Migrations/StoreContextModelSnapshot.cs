@@ -254,6 +254,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("NumberOfStars")
                         .HasColumnType("int");
 

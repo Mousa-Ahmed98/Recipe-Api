@@ -10,7 +10,7 @@ namespace Application.Interfaces.DomainServcies
     {
         Task<PaginatedList<RatingResponse>> GetRatings(int recipeId, PaginatedRequest request);
         Task<RatingResponse> AddRating(int recipeId, RatingRequest request);
-        Task<RatingResponse> UpdateRating(int id, RatingRequest request);
-        Task RemoveRatingById(int id);
+        Task<RatingResponse> UpdateRating(int recipeId, RatingRequest request);
+        Task RemoveRating(int recipeId);
     }
 }

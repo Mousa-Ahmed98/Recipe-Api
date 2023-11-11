@@ -23,19 +23,23 @@ namespace Infrastructure.Repositories.Implementation
                 .Include(x => x.Steps)
                 .Include(x => x.Ingredients)
                 .Include(x => x.Ratings)
+                    .ThenInclude(r => r.User)
+                    .Take(5) // only first 5 reviews
                 .Include(x => x.Plans
-                    .Where(p => userId != null && p.UserId == userId))
+                    .Where(p => userId != null && p.UserId == userId)
+                    )
                 .Include(x => x.Author);
 
             var res = await query.FirstOrDefaultAsync();
 
-            if (res == null)
+            if (res != null && userId != null)
             {
-                return null;
-            }
+                res.InFavourites =  await _context.FavouriteRecipes
+                    .AnyAsync(f => f.RecipeId == res.Id && f.UserId == userId);
 
-            res.InFavourites = userId != null && _context.FavouriteRecipes
-                .Any(f => f.RecipeId == res.Id && f.UserId == userId);
+                res.UserRating = await _context.Ratings
+                    .FirstOrDefaultAsync(f => f.RecipeId == res.Id && f.UserId == userId);
+            }
 
             return res;
         }

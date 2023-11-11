@@ -1,11 +1,11 @@
-﻿using Core.Common;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
+using Core.Common;
 using Core.Entities;
 using Core.Interfaces.Repositories;
 using Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.Implementation
 {
@@ -20,15 +20,21 @@ namespace Infrastructure.Repositories.Implementation
         {
             var query = _context.Ratings
                 .Where(r => r.RecipeId == recipeId)
-                .Include(r => r.User)
-                ;
+                .Include(r => r.User);
+
             return await PaginatedList<Rating>.CreateAsync(query, pageNumber, pageSize);
         }
 
-        public async Task<bool> RatedAlready(string userId, int recipId)
+        public async Task<Rating?> GetByUserId(string userId, int recipeId)
         {
             return await _context.Ratings
-                .AnyAsync(r => r.UserId == userId && r.RecipeId == recipId);
+                .FirstOrDefaultAsync(r => r.UserId == userId && r.RecipeId == recipeId);
+        }
+
+        public async Task<bool> RatedAlready(string userId, int recipeId)
+        {
+            return await _context.Ratings
+                .AnyAsync(r => r.UserId == userId && r.RecipeId == recipeId);
         }
     }
 }
