@@ -9,5 +9,6 @@ namespace Core.Interfaces.Repositories
     {
         Task<PaginatedList<Rating>> GetByRecipeId(int recipeId, int pageNumber, int pageSize);
         Task<bool> RatedAlready(string userId, int recipId); 
+        Task<Rating?> GetByUserId(string userId, int recipeId);
     }
 }

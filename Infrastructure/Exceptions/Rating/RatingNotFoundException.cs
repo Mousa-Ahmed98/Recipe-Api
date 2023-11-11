@@ -2,8 +2,8 @@
 {
     public class RatingNotFoundException : NotFoundException
     {
-        public RatingNotFoundException(int id)
-            : base($"Rating with id {id} was not found.")
+        public RatingNotFoundException(int recipeId)
+            : base($"No Rating was found for recipe with id = {recipeId}.")
         {
         }
     }
