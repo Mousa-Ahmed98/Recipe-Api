@@ -18,6 +18,7 @@ namespace Infrastructure.Configurations
                 .HasMaxLength(500);
 
             builder.Property(r => r.NumberOfStars)
+                .HasDefaultValue(5)
                 .IsRequired();
 
             builder.HasOne(r => r.User)
@@ -31,6 +32,8 @@ namespace Infrastructure.Configurations
                 .HasForeignKey(r => r.RecipeId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Navigation(e => e.User).AutoInclude();
 
             builder.ToTable(nameof(StoreContext.Ratings));
         }
