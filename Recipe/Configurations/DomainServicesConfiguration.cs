@@ -14,6 +14,7 @@ namespace RecipeApi.Configurations
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<INotificationsService, NotificationsService>();
             services.AddScoped<IRatingsService, RatingsService>();
+            services.AddScoped<ICommentsService, CommentsService>();
         }
     }
 }

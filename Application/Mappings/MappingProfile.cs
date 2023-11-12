@@ -86,6 +86,7 @@ namespace RecipeApi.Mappings
                     opt.MapFrom(src =>
                         src.User
                     ));
+
             CreateMap<PaginatedList<Rating>, PaginatedList<RatingResponse>>();
 
             /// ApplicationUser
@@ -112,9 +113,32 @@ namespace RecipeApi.Mappings
                         src.Recipe
                     ));
 
-            
+            /// Comments
+
+            CreateMap<Comment, CommentResponse>()
+                .ForMember(dest => dest.Replies, opt =>
+                    opt.MapFrom(src =>
+                        src.Replies
+                    ))
+                .ForMember(dest => dest.User, opt =>
+                    opt.MapFrom(src =>
+                        src.User
+                    ));
+
+            CreateMap<PaginatedList<Comment>, PaginatedList<CommentResponse>>();
+
+            /// Replies
+
+            CreateMap<Reply, ReplyResponse>()
+                .ForMember(dest => dest.User, opt =>
+                    opt.MapFrom(src =>
+                        src.User
+                    ));
+
+            CreateMap<PaginatedList<Reply>, PaginatedList<ReplyResponse>>();
+
             /// ShoppingItem
-            
+
             CreateMap<ShoppingItemDto, ShoppingItem>()
                 .ForMember(dest => dest.Ingredient,
                 opt => opt.MapFrom(src => src.Ingredient))

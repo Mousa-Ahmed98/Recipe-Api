@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Common;
 using Core.CustomModels;
+using Core.Entities;
 using System.Collections.Generic;
 
 namespace Application.DTOs.Response
@@ -14,7 +15,8 @@ namespace Application.DTOs.Response
         public CategoryResponse Category { get; set; }
         public List<IngredientDto> Ingredients { get; set; }
         public RatingResponse UserRating { get; set; }
-        public ICollection<RatingResponse> Ratings { get; set; }
+        public List<RatingResponse> Ratings { get; set; }
+        public List<CommentResponse> Comments { get; set; }
         public List<StepDto> Steps { get; set; }
         public UserResponse Author { get; set; }
         public int NumberOfRatings { get; set; }
