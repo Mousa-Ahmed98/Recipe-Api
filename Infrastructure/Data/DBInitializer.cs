@@ -7,6 +7,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Core.Constants;
+using static System.Net.Mime.MediaTypeNames;
+using System.Threading.Channels;
 
 namespace Infrastructure.Data.DBInitializer
 {
@@ -26,7 +28,11 @@ namespace Infrastructure.Data.DBInitializer
 
             if (context == null) { throw new ArgumentNullException(nameof(context)); }
 
-            context.Database.EnsureCreated();
+            // `MigrateAsync` creates the db if it doenst exist already
+            // and ensures that the database schema is in sync with the application code. 
+            // by appling all of your migrations
+            // while `EnsureCreated` will just create the db but won't apply migrations.
+            await context.Database.MigrateAsync();
 
             #region SeedCategories
             if (!context.Categories.Any())
