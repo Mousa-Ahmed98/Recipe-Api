@@ -16,6 +16,7 @@ namespace Core.Entities
         public int TotalRatings { get; set; }
         public double AverageRating { get; set; }
         public ICollection<Rating> Ratings { get; set; }
+        public ICollection<Comment> Comments { get; set; }
         [NotMapped]
         public Rating? UserRating { get; set; }
         [NotMapped]

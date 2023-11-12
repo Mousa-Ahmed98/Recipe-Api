@@ -14,6 +14,8 @@ namespace Core.Interfaces
         IPlansRepository PlansRepository { get; }
         IFollowsRepository FollowsRepoisitory { get; }
         IRatingsRepository RatingRepository { get; }
+        ICommentsRepository CommentsRepository { get; }
+        IRepliesRepository RepliesRepository { get; }
 
         Task<bool> SaveAsync();
     }
