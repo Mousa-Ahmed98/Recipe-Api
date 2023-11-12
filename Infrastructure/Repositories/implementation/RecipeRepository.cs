@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +7,7 @@ using Core.Entities;
 using Core.Interfaces.Repositories;
 using Core.CustomModels;
 using Core.Common;
+
 using Infrastructure.Data;
 
 namespace Infrastructure.Repositories.Implementation
@@ -22,13 +23,17 @@ namespace Infrastructure.Repositories.Implementation
                 .Include(x => x.Category)
                 .Include(x => x.Steps)
                 .Include(x => x.Ingredients)
-                .Include(x => x.Ratings)
-                    .ThenInclude(r => r.User)
-                    .Take(5) // only first 5 reviews
-                .Include(x => x.Plans
-                    .Where(p => userId != null && p.UserId == userId)
-                    )
-                .Include(x => x.Author);
+                .Include(x => x.Author)
+                .Include(x => x.Ratings.Take(5)) // only first 5 reviews
+                .Include(x => x.Comments.Take(5)) // only first 5 comments
+                    .ThenInclude(r => r.Replies);
+            
+            if(userId != null)
+            {
+                query.Include(x => x.Plans
+                    .Where(p => p.UserId == userId)
+                );
+            }
 
             var res = await query.FirstOrDefaultAsync();
 
