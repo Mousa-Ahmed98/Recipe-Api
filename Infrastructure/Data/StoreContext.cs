@@ -28,5 +28,7 @@ namespace Infrastructure.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Follow> Follows { get; set; }
         public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Reply> Replies { get; set; }
     }
 }

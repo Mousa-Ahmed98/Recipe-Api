@@ -25,6 +25,8 @@ namespace Infrastructure.UnitOfWork.Implementation
             PlansRepository = new PlansRepository(dbContext);
             FollowsRepoisitory = new FollowsRepository(dbContext);
             RatingRepository = new RatingsRepository(dbContext);
+            CommentsRepository = new CommentsRepository(dbContext);
+            RepliesRepository = new RepliesRepository(dbContext);
         }
 
         public ICategoriesRepository CategoriesRepository { get; }
@@ -36,7 +38,9 @@ namespace Infrastructure.UnitOfWork.Implementation
         public IPlansRepository PlansRepository { get; }
         public IFollowsRepository FollowsRepoisitory { get; }
         public IRatingsRepository RatingRepository { get; }
-       
+        public ICommentsRepository CommentsRepository { get; }
+        public IRepliesRepository RepliesRepository { get; }
+
         public async Task<bool> SaveAsync() 
         {
             return await _context.SaveChangesAsync() > 0;
