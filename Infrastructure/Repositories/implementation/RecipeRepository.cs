@@ -28,16 +28,20 @@ namespace Infrastructure.Repositories.Implementation
                 .Include(x => x.Comments.Take(5)) // only first 5 comments
                     .ThenInclude(r => r.Replies);
             
-            if(userId != null)
+            if(userId != null) // TODO :: WhereIf
             {
                 query.Include(x => x.Plans
                     .Where(p => p.UserId == userId)
                 );
             }
-
+            
             var res = await query.FirstOrDefaultAsync();
+            
+            if (res == null) return null;
 
-            if (res != null && userId != null)
+            res.NumberOfComments = await _context.Comments.CountAsync(x => x.RecipeId == id);
+
+            if (userId != null)
             {
                 res.InFavourites =  await _context.FavouriteRecipes
                     .AnyAsync(f => f.RecipeId == res.Id && f.UserId == userId);
