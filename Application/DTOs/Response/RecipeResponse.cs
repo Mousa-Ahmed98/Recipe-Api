@@ -13,13 +13,14 @@ namespace Application.DTOs.Response
         public bool InFavourites { get; set; }
         public PlanSummaryResponse Plan { get; set; }
         public CategoryResponse Category { get; set; }
+        public UserResponse Author { get; set; }
         public List<IngredientDto> Ingredients { get; set; }
+        public List<StepDto> Steps { get; set; }
+        public List<CommentResponse> Comments { get; set; }
+        public int NumberOfComments { get; set; }
         public RatingResponse UserRating { get; set; }
         public List<RatingResponse> Ratings { get; set; }
-        public List<CommentResponse> Comments { get; set; }
-        public List<StepDto> Steps { get; set; }
-        public UserResponse Author { get; set; }
-        public int NumberOfRatings { get; set; }
         public double AverageRating { get; set; }
+        public int NumberOfRatings { get; set; }
     }
 }
