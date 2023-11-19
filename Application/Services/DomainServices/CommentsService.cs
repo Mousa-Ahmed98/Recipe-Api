@@ -1,9 +1,11 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
 
-using Core.Interfaces;
+using Core.Enums;
 using Core.Entities;
+using Core.Interfaces;
 using Core.Common;
+using Core.CustomModels;
 
 using Infrastructure.Exceptions.Recipe;
 using Infrastructure.Exceptions;
@@ -13,6 +15,8 @@ using Application.Interfaces.DomainServices;
 using Application.DTOs.Request;
 using Application.DTOs.Response;
 
+
+
 namespace Application.Services.DomainServices
 {
     public class CommentsService : ICommentsService
@@ -20,16 +24,19 @@ namespace Application.Services.DomainServices
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserSession _session;
+        private readonly INotificationManager _notificationManager;
 
         public CommentsService(
             IUserSession session,
-            IUnitOfWork unitOfWork
-,
-            IMapper mapper)
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            INotificationManager notificationManager
+            )
         {
             _session = session;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _notificationManager = notificationManager;
         }
 
         /// 
@@ -61,6 +68,13 @@ namespace Application.Services.DomainServices
                 UserId = _session.UserId,
                 Content = request.Content
             };
+
+            // Notify the author about the new comment they've just recieved.
+            _ = _notificationManager.CreateOne(
+                    userId: recipe.AuthorId,
+                    recipe: _mapper.Map<RecipeSummary>(recipe),
+                    type: NotificationType.Comment
+                );
 
             await _unitOfWork.CommentsRepository.AddAsync(comment);
             await _unitOfWork.SaveAsync();
